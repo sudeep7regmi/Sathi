@@ -4,9 +4,7 @@ A full-stack web application for coordinating futsal in Pokhara, Nepal. Three ro
 **Player**, **Futsal Owner**, and **Admin** — each with their own web dashboard, plus
 real-time match chat and live scores over WebSockets.
 
-> 100% web app (responsive, no mobile build). Pricing in NPR, demo data set in Pokhara.
-
----
+---  overall structure
 
 ## Tech stack
 
@@ -152,7 +150,7 @@ Log out from the sidebar to switch roles.
 
 ---
 
-## Production notes
+# Production notes
 
 - Replace `sequelize.sync({ alter: true })` with proper **migrations** (`sequelize-cli`).
 - Set a strong `JWT_SECRET` and serve over HTTPS.
