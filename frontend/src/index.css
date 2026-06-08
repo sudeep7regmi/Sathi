@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --acc: #13a04a; }
+* { -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #f4f4f5; color: #18181b; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
