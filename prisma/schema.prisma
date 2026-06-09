@@ -1,25 +1,282 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
 }
 
-model User { 
-  id    Int     @id @default(autoincrement()) 
-  email String  @unique
-  name  String?
-  password String
-  posts Post[]
-} 
-model Post { 
-  id        Int     @id @default(autoincrement()) 
-  title     String
-  content   String? @db.Text
-  published Boolean @default(false) 
-  author    User    @relation(fields: [authorId], references: [id]) 
-  authorId  Int
-} 
+// ================= GLOBAL ENUMS =================
 
+enum Role {
+  PLAYER
+  OWNER
+  ADMIN
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  PRO
+}
+
+enum MatchStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ================= ARCHITECTURE SYSTEM MODELS =================
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  role           Role      @default(PLAYER)
+  isVerified     Boolean   @default(false)
+  refreshToken   String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  playerProfile  PlayerProfile?
+  ownerProfile   OwnerProfile?
+  
+  createdMatches Match[]   @relation("MatchOrganizer")
+  bookings       Booking[]
+  notifications  Notification[]
+  sentMessages   Message[] @relation("MessageSender")
+  reviewsGiven   Review[]
+  auditLogs      AuditLog[]
+}
+
+model PlayerProfile {
+  id                String     @id @default(uuid())
+  userId            String     @unique
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName          String
+  phoneNumber       String
+  profileImage      String?
+  location          String
+  age               Int
+  preferredPosition String     // e.g., "Goalkeeper", "Defender", "Midfielder", "Forward"
+  skillLevel        SkillLevel @default(BEGINNER)
+  bio               String?    @db.Text
+  rating            Float      @default(0.0)
+  matchesPlayed     Int        @default(0)
+  wins              Int        @default(0)
+  losses            Int        @default(0)
+  goals             Int        @default(0)
+  assists           Int        @default(0)
+
+  matchParticipations MatchParticipant[]
+  joinRequests        JoinRequest[]
+  tournamentRegs      TournamentRegistration[]
+}
+
+model OwnerProfile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName           String
+  phoneNumber        String
+  futsalName         String
+  futsalLocation     String
+  verificationDocs   String?  @db.Text
+  isVerified         Boolean  @default(false)
+  
+  grounds            Ground[]
+}
+
+model Ground {
+  id                 String   @id @default(uuid())
+  ownerId            String
+  owner              OwnerProfile @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name               String
+  description        String   @db.Text
+  address            String
+  latitude           Float?
+  longitude          Float?
+  pricePerHour       Float
+  amenities          String   @db.Text // JSON string layout of features
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  images             GroundImage[]
+  bookings           Booking[]
+  matches            Match[]
+  reviews            Review[]
+}
+
+model GroundImage {
+  id        String @id @default(uuid())
+  groundId  String
+  ground    Ground @relation(fields: [groundId], references: [id], onDelete: Cascade)
+  url       String
+}
+
+model Match {
+  id                String      @id @default(uuid())
+  organizerId       String
+  organizer         User        @relation("MatchOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  groundId          String?
+  ground            Ground?     @relation(fields: [groundId], references: [id], onDelete: SetNull)
+  title             String
+  description       String?     @db.Text
+  location          String
+  date              DateTime
+  startTime         DateTime
+  endTime           DateTime
+  skillReq          SkillLevel  @default(BEGINNER)
+  reqPosition       String?
+  playerLimit       Int
+  matchType         String      // e.g., "5v5", "7v7"
+  status            MatchStatus @default(UPCOMING)
+  createdAt         DateTime    @default(now())
+
+  participants      MatchParticipant[]
+  joinRequests      JoinRequest[]
+  liveScore         LiveScore?
+  chat              Chat?
+}
+
+model MatchParticipant {
+  id        String        @id @default(uuid())
+  matchId   String
+  match     Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    PlayerProfile @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime      @default(now())
+
+  @@unique([matchId, playerId])
+}
+
+model JoinRequest {
+  id        String        @id @default(uuid())
+  matchId   String
+  match     Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    PlayerProfile @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+
+  @@unique([matchId, playerId])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groundId    String
+  ground      Ground        @relation(fields: [groundId], references: [id], onDelete: Cascade)
+  date        DateTime
+  startTime   DateTime
+  endTime     DateTime
+  duration    Int           // total time blocks in minutes
+  totalCost   Float
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Tournament {
+  id              String   @id @default(uuid())
+  name            String
+  description     String   @db.Text
+  venue           String
+  date            DateTime
+  maxTeams        Int
+  registrationFee Float
+  rules           String   @db.Text
+  createdAt       DateTime @default(now())
+
+  registrations   TournamentRegistration[]
+}
+
+model TournamentRegistration {
+  id           String        @id @default(uuid())
+  tournamentId String
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  captainId    String
+  captain      PlayerProfile @relation(fields: [captainId], references: [id], onDelete: Cascade)
+  teamName     String
+  status       RequestStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+}
+
+model LiveScore {
+  id             String   @id @default(uuid())
+  matchId        String   @unique
+  match          Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  homeScore      Int      @default(0)
+  awayScore      Int      @default(0)
+  timelineEvents String   @db.LongText // JSON tracking array of timelines
+  updatedAt      DateTime @updatedAt
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  matchId   String?   @unique
+  match     Match?    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  isGroup   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  imageUrl  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  reviewerId String
+  reviewer   User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  groundId   String?
+  ground     Ground?  @relation(fields: [groundId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?  @db.Text
+  createdAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String   @db.Text
+  createdAt DateTime @default(now())
+}

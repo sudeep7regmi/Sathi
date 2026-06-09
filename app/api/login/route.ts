@@ -1,74 +1,71 @@
-import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { z } from "zod";
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+import { prisma } from '@/lib/prisma';
+import { loginSchema } from '@/lib/validation/auth.schema';
+import { generateAccessToken, generateRefreshToken } from '@/lib/token';
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const body = await request.json();
+    const parsedData = loginSchema.safeParse(body);
 
-    const result = schema.safeParse(body);
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: "Invalid input" },
-        { status: 400 }
-      );
+    if (!parsedData.success) {
+      return NextResponse.json({ success: false, errors: parsedData.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const { email, password } = result.data;
+    const { email, password } = parsedData.data;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    // 1. Verify User Exists
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+    // 2. Verify Password
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
     }
 
-    const token = jwt.sign (
-        {
-           userId : user.id,
-           userEmail: user.email,
-        },
-        process.env.JWT_SECRET!,
-        {expiresIn: "1h"}
-     );
+    // 3. Generate Tokens
+    const accessToken = generateAccessToken({ userId: user.id, role: user.role });
+    const refreshToken = generateRefreshToken({ userId: user.id, role: user.role });
 
-    const res = NextResponse.json({
-      message: "Login successful",
+    // 4. Save refresh token to DB for revocation checks later
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken },
     });
 
-    res.cookies.set("token", token, {
+    // 5. Construct secure response with HttpOnly Cookies
+    const response = NextResponse.json({ 
+      success: true, 
+      message: 'Authentication successful',
+      role: user.role 
+    }, { status: 200 });
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    response.cookies.set('sathi_access', accessToken, {
       httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      secure: false,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 15 * 60, // 15 Minutes
+      path: '/',
     });
 
-    return res;
-  } catch (err) {
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+    response.cookies.set('sathi_refresh', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 Days
+      path: '/',
+    });
+
+    return response;
+
+  } catch (error) {
+    console.error('[LOGIN_API_ERROR]', error);
+    return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
   }
 }
