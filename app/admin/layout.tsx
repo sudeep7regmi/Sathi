@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#0B0C10] flex text-[#F0EDE6] selection:bg-[#C8F55A] selection:text-black relative overflow-hidden">
       {/* Background glow node matching ecosystem */}
-      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-0 w-125 h-125 rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
 
       {/* Responsive Overlay */}
       {isSidebarOpen && (
@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div className="w-10 h-10 bg-[#C8F55A] rounded-xl flex items-center justify-center font-black text-black text-xl shadow-lg shadow-[#C8F55A]/10" style={DISPLAY}>
               S
             </div>
-            <span className="text-2xl font-black text-white tracking-wide" style={DISPLAY}>COMMAND</span>
+            <span className="text-2xl font-black text-white tracking-wide" style={DISPLAY}>Sathi</span>
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)} 

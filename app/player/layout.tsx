@@ -5,15 +5,31 @@ import { useRouter, usePathname } from 'next/navigation';
 import { apiClient } from '@/lib/axios';
 import { SocketProvider } from '@/components/providers/SocketProvider';
 import axios from 'axios';
+import { 
+  LayoutDashboard, 
+  Flame, 
+  Inbox, 
+  Layers, 
+  MessageSquare, 
+  LogOut, 
+  Menu, 
+  X,
+  User
+} from 'lucide-react';
 
 interface PlayerLayoutProps {
   children: ReactNode;
 }
 
+const DISPLAY = {
+  fontFamily: "'Barlow Condensed', sans-serif",
+  fontWeight: 900,
+};
+
 export default function PlayerLayout({ children }: PlayerLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed on mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userName, setUserName] = useState('Player');
 
   useEffect(() => {
@@ -30,7 +46,6 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
     fetchHeaderProfile();
   }, []);
 
-  // Auto-close mobile sidebar when navigating to a new page
   useEffect(() => {
     const handlePathChange = () => setIsSidebarOpen(false);
     handlePathChange();
@@ -48,104 +63,112 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
   const navLinks = [
-    { name: 'Dashboard Overview', path: '/player', icon: '🏠' },
-    { name: 'Matchmaking Hub', path: '/player/matches', icon: '⚽' },
-    { name: 'Incoming Requests', path: '/player/requests', icon: '📥' },
-    { name: 'Book Futsal Grounds', path: '/player/grounds', icon: '🏟️' },
-    { name: 'Team Messenger', path: '/player/chat', icon: '💬' },
+    { name: 'Dashboard Overview', path: '/player', icon: LayoutDashboard },
+    { name: 'Matchmaking Hub', path: '/player/matches', icon: Flame },
+    { name: 'Incoming Requests', path: '/player/requests', icon: Inbox },
+    { name: 'Book Futsal Grounds', path: '/player/grounds', icon: Layers },
+    { name: 'Team Messenger', path: '/player/chat', icon: MessageSquare },
   ];
 
   return (
     <SocketProvider>
-      <div className="min-h-screen bg-[#F8FAFC] flex text-slate-900 font-sans">
+      <div className="min-h-screen bg-[#0B0C10] flex text-[#F0EDE6] antialiased selection:bg-[#C8F55A] selection:text-black">
         
         {/* MOBILE OVERLAY BACKDROP */}
         {isSidebarOpen && (
           <div 
-            className="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
 
-        {/* SIDEBAR: Full width on mobile (w-full), fixed width on desktop (md:w-72) */}
+        {/* SIDEBAR NAVIGATION PANEL */}
         <aside 
-          className={`fixed inset-y-0 left-0 z-50 w-full md:w-72 bg-[#0B1121] text-slate-300 flex flex-col transition-transform duration-300 ease-in-out 
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} md:relative`}
+          className={`fixed inset-y-0 left-0 z-50 w-full md:w-72 bg-[#12161A] border-r border-white/5 flex flex-col transition-transform duration-300 ease-in-out 
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} md:sticky top-0 h-screen`}
         >
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-800/60">
+          {/* Sidebar Header branding */}
+          <div className="flex items-center justify-between p-6 border-b border-white/5">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-600/20">
+              <div className="w-10 h-10 bg-[#C8F55A] rounded-xl flex items-center justify-center font-black text-black text-xl shadow-lg shadow-[#C8F55A]/10" style={DISPLAY}>
                 S
               </div>
-              <span className="text-2xl font-black text-white tracking-wide">SATHI</span>
+              <span className="text-2xl font-black text-white tracking-wide uppercase" style={DISPLAY}>SATHI</span>
             </div>
             {/* Close Button (Mobile Only) */}
             <button 
               onClick={() => setIsSidebarOpen(false)} 
-              className="md:hidden text-slate-400 hover:text-white bg-slate-800 p-2 rounded-lg"
+              className="md:hidden text-white/50 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl cursor-pointer"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+          {/* Navigation Link Stack */}
+          <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
             {navLinks.map((link) => {
               const isActive = pathname === link.path;
+              const IconComponent = link.icon;
               return (
                 <button 
                   key={link.path}
                   onClick={() => router.push(link.path)} 
-                  className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 text-left
-                    ${isActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'hover:bg-slate-800 hover:text-white'}`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 text-left cursor-pointer group
+                    ${isActive 
+                      ? 'bg-[#C8F55A] text-black shadow-lg shadow-[#C8F55A]/5' 
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                  style={DISPLAY}
                 >
-                  <span className="text-lg">{link.icon}</span>
+                  <IconComponent className={`w-4 h-4 shrink-0 ${isActive ? 'text-black' : 'text-[#C8F55A] group-hover:scale-110 transition-transform'}`} />
                   <span>{link.name}</span>
                 </button>
               );
             })}
           </nav>
 
-          {/* Sidebar Footer */}
-          <div className="p-4 border-t border-slate-800/60">
+          {/* Sidebar Footer Container */}
+          <div className="p-4 border-t border-white/5">
             <button 
               onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-3.5 text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-medium transition-colors text-left"
+              className="w-full flex items-center space-x-3 px-4 py-3.5 text-red-400 hover:bg-red-500/10 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors text-left cursor-pointer"
+              style={DISPLAY}
             >
-              <span className="text-lg">🚪</span>
+              <LogOut className="w-4 h-4 shrink-0" />
               <span>Sign Out Session</span>
             </button>
           </div>
         </aside>
 
-        {/* MAIN VIEWPORT */}
+        {/* MAIN DISPLAY PORTAL CONTAINER */}
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative">
-          {/* Top Header */}
-          <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 h-20 border-b border-slate-200 flex items-center justify-between px-4 md:px-8">
+          
+          {/* Top Navbar Header bar */}
+          <header className="bg-[#12161A]/80 backdrop-blur-md sticky top-0 z-30 h-20 border-b border-white/5 flex items-center justify-between px-4 md:px-8">
             <div className="flex items-center">
               <button 
                 onClick={() => setIsSidebarOpen(true)}
-                className="text-slate-600 focus:outline-none md:hidden p-2 hover:bg-slate-100 rounded-lg mr-4"
+                className="text-white focus:outline-none md:hidden w-9 h-9 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/5 cursor-pointer"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <Menu className="w-4 h-4" />
               </button>
-              <h2 className="hidden sm:block text-xl font-bold text-slate-800">
+              <h2 className="hidden sm:block text-2xl font-black text-[#F0EDE6] uppercase tracking-wider" style={DISPLAY}>
                 {navLinks.find(l => l.path === pathname)?.name || 'Dashboard'}
               </h2>
             </div>
             
-            <div className="flex items-center space-x-3 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
-              <span className="text-sm font-bold text-slate-700 hidden sm:inline pl-2">
+            {/* Identity badge profile widget */}
+            <div className="flex items-center space-x-3 bg-[#0B0C10] pl-4 pr-1.5 py-1.5 rounded-full border border-white/5">
+              <span className="text-xs font-bold uppercase text-white/80 hidden sm:inline tracking-wider" style={DISPLAY}>
                 {userName}
               </span>
-              <div className="w-9 h-9 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs tracking-wider shadow-sm">
-                {getInitials(userName)}
+              <div className="w-8 h-8 rounded-full bg-[#A1DB13]/10 border border-[#C8F55A]/30 text-[#C8F55A] font-bold flex items-center justify-center text-xs tracking-wider" style={DISPLAY}>
+                {getInitials(userName) || <User className="w-3 h-3" />}
               </div>
             </div>
           </header>
 
-          <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+          {/* Core Dynamic Screen Content Injection point */}
+          <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto relative z-10">
             {children}
           </main>
         </div>
