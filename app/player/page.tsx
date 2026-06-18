@@ -3,6 +3,17 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/axios';
 import axios from 'axios';
+import { 
+  Trophy, 
+  Tv, 
+  User, 
+  Activity, 
+  Calendar, 
+  MapPin, 
+  Clock, 
+  Gamepad2, 
+  Loader2 
+} from 'lucide-react';
 
 interface PlayerProfile {
   fullName: string;
@@ -30,6 +41,11 @@ interface Match {
   };
 }
 
+const DISPLAY = {
+  fontFamily: "'Barlow Condensed', sans-serif",
+  fontWeight: 900,
+};
+
 export default function PlayerDashboardHome() {
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -51,75 +67,102 @@ export default function PlayerDashboardHome() {
   }, []);
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    <div className="flex items-center justify-center min-h-[60vh] bg-[#0B0C10]">
+      <Loader2 className="animate-spin h-10 w-10 text-[#C8F55A]" />
     </div>
   );
 
   if (!profile) return null;
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 bg-[#0B0C10] text-[#F0EDE6] selection:bg-[#C8F55A] selection:text-black min-h-screen relative overflow-hidden">
+      {/* Background glow node matching ecosystem */}
+      <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
+
       {/* Hero Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900 text-white rounded-3xl p-8 md:p-10 shadow-xl shadow-indigo-900/10">
-        <div className="relative z-10">
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">Welcome back, {profile.fullName.split(' ')[0]}!</h1>
-          <p className="text-indigo-200 text-sm md:text-base max-w-xl">
-            You are currently ranked as a <span className="text-white font-bold">{profile.skillLevel}</span> player in <span className="text-white font-bold">{profile.location}</span>. Ready to hit the pitch?
+      <div className="relative overflow-hidden bg-[#12161A] border border-white/5 rounded-3xl p-8 md:p-10 shadow-2xl">
+        <div className="relative z-10 max-w-2xl">
+          <h1 className="text-3xl md:text-5xl uppercase tracking-wide text-white mb-3" style={DISPLAY}>
+            Welcome back, {profile.fullName.split(' ')[0]}!
+          </h1>
+          <p className="text-white/60 text-sm md:text-base leading-relaxed">
+            You are currently ranked as an <span className="text-[#C8F55A] font-bold uppercase">{profile.skillLevel}</span> player in <span className="text-white font-semibold">{profile.location}</span>. Ready to hit the pitch?
           </p>
         </div>
-        {/* Decorative Background Elements */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse"></div>
-        <div className="absolute -bottom-24 right-10 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        {/* Neon Aesthetic Background Node */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#C8F55A]/10 rounded-full blur-3xl pointer-events-none"></div>
       </div>
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
-          { label: 'Matches Played', value: profile.matchesPlayed, icon: '🏟️', color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: 'Goals Scored', value: profile.goals, icon: '⚽', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Preferred Role', value: profile.preferredPosition, icon: '🏃', color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Win Record', value: `${profile.wins}W - ${profile.losses}L`, icon: '🏆', color: 'text-blue-600', bg: 'bg-blue-50' },
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group cursor-default">
-            <div className={`w-12 h-12 ${stat.bg} rounded-2xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform`}>
-              {stat.icon}
+          { label: 'Matches Played', value: profile.matchesPlayed, icon: Tv },
+          { label: 'Goals Scored', value: profile.goals, icon: Activity },
+          { label: 'Preferred Role', value: profile.preferredPosition, icon: User },
+          { label: 'Win Record', value: `${profile.wins}W - ${profile.losses}L`, icon: Trophy },
+        ].map((stat, i) => {
+          const IconComponent = stat.icon;
+          return (
+            <div key={i} className="bg-[#12161A] border border-white/5 p-6 rounded-2xl hover:border-[#C8F55A]/20 shadow-xl transition-all duration-300 group">
+              <div className="w-10 h-10 bg-[#0A1F1A] border border-white/5 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <IconComponent className="w-5 h-5 text-[#C8F55A]" />
+              </div>
+              <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-2xl font-black mt-1 text-white group-hover:text-[#C8F55A] transition-colors" style={DISPLAY}>
+                {stat.value}
+              </p>
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
-            <p className={`text-2xl font-black mt-1 ${stat.color}`}>{stat.value}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Matches Column */}
         <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-xl font-bold text-slate-900 flex items-center">
-            <span className="w-2 h-6 bg-indigo-600 rounded-full mr-3"></span>
+          <h2 className="text-xl uppercase tracking-wider font-bold text-white flex items-center" style={DISPLAY}>
+            <span className="w-1.5 h-5 bg-[#C8F55A] rounded-full mr-3"></span>
             Your Upcoming Games
           </h2>
 
           {matches.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 border border-slate-200 text-center flex flex-col items-center justify-center">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-2xl mb-3">📅</div>
-              <h3 className="font-bold text-slate-800 text-lg">No games scheduled</h3>
-              <p className="text-slate-500 text-sm mt-1">Join a match from the global hub to get started.</p>
+            <div className="bg-[#12161A] rounded-2xl p-12 border border-white/5 text-center flex flex-col items-center justify-center shadow-xl">
+              <div className="w-14 h-14 bg-[#0A1F1A] border border-white/5 rounded-xl flex items-center justify-center text-2xl mb-4">
+                <Calendar className="w-6 h-6 text-white/30" />
+              </div>
+              <h3 className="font-bold text-white/80 uppercase tracking-wide text-md" style={DISPLAY}>No games scheduled</h3>
+              <p className="text-white/40 text-xs mt-1">Join an available match from the global squad hub to lock in.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {matches.map((match) => (
-                <div key={match.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-200 transition-colors">
+                <div key={match.id} className="bg-[#12161A] p-5 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#C8F55A]/20 transition-all duration-300 shadow-xl group">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex flex-col items-center justify-center shrink-0">
-                      <span className="text-xs font-bold uppercase">{new Date(match.date).toLocaleString('default', { month: 'short' })}</span>
-                      <span className="text-lg font-black leading-none">{new Date(match.date).getDate()}</span>
+                    <div className="w-12 h-12 bg-[#0A1F1A] border border-white/5 rounded-xl flex flex-col items-center justify-center shrink-0" style={DISPLAY}>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#C8F55A]">
+                        {new Date(match.date).toLocaleString('default', { month: 'short' })}
+                      </span>
+                      <span className="text-lg font-black leading-none text-white mt-0.5">
+                        {new Date(match.date).getDate()}
+                      </span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900">{match.title}</h3>
-                      <p className="text-sm text-slate-500 mt-0.5">📍 {match.ground?.name || match.location} • {match.startTime}</p>
+                      <h3 className="font-bold text-white group-hover:text-[#C8F55A] transition-colors text-sm sm:text-base">{match.title}</h3>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/50 mt-1">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-white/30" />
+                          {match.ground?.name || match.location}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-white/30" />
+                          {match.startTime}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+                  <span 
+                    className="text-[10px] font-bold bg-white/5 text-white/70 px-3 py-1.5 rounded-lg border border-white/5 uppercase tracking-wider self-start sm:self-auto"
+                    style={DISPLAY}
+                  >
                     {match.matchType}
                   </span>
                 </div>
@@ -128,21 +171,38 @@ export default function PlayerDashboardHome() {
           )}
         </div>
 
-        {/* Right Sidebar */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 h-fit">
-          <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-4 mb-4">Player Attributes</h3>
+        {/* Right Sidebar Attributes panel */}
+        <div className="bg-[#12161A] p-6 rounded-2xl border border-white/5 h-fit shadow-2xl">
+          <h3 className="font-bold text-white text-md uppercase tracking-wider border-b border-white/5 pb-4 mb-5 flex items-center gap-2" style={DISPLAY}>
+            <Gamepad2 className="w-4 h-4 text-[#C8F55A]" /> Player Performance Attributes
+          </h3>
           <div className="space-y-5">
             <div>
-              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500 font-medium">Attacking</span><span className="font-bold">85%</span></div>
-              <div className="w-full bg-slate-100 rounded-full h-2"><div className="bg-indigo-500 h-2 rounded-full w-[85%]"></div></div>
+              <div className="flex justify-between text-xs uppercase tracking-wider mb-2" style={DISPLAY}>
+                <span className="text-white/60">Attacking</span>
+                <span className="text-[#C8F55A]">85%</span>
+              </div>
+              <div className="w-full bg-[#0A1F1A] border border-white/5 rounded-full h-1.5">
+                <div className="bg-[#C8F55A] shadow-sm h-1.5 rounded-full w-[85%]"></div>
+              </div>
             </div>
             <div>
-              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500 font-medium">Defending</span><span className="font-bold">60%</span></div>
-              <div className="w-full bg-slate-100 rounded-full h-2"><div className="bg-emerald-500 h-2 rounded-full w-[60%]"></div></div>
+              <div className="flex justify-between text-xs uppercase tracking-wider mb-2" style={DISPLAY}>
+                <span className="text-white/60">Defending</span>
+                <span className="text-[#C8F55A]">60%</span>
+              </div>
+              <div className="w-full bg-[#0A1F1A] border border-white/5 rounded-full h-1.5">
+                <div className="bg-[#C8F55A] shadow-sm h-1.5 rounded-full w-[60%]"></div>
+              </div>
             </div>
             <div>
-              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500 font-medium">Playmaking</span><span className="font-bold">75%</span></div>
-              <div className="w-full bg-slate-100 rounded-full h-2"><div className="bg-amber-500 h-2 rounded-full w-[75%]"></div></div>
+              <div className="flex justify-between text-xs uppercase tracking-wider mb-2" style={DISPLAY}>
+                <span className="text-white/60">Playmaking</span>
+                <span className="text-[#C8F55A]">75%</span>
+              </div>
+              <div className="w-full bg-[#0A1F1A] border border-white/5 rounded-full h-1.5">
+                <div className="bg-[#C8F55A] shadow-sm h-1.5 rounded-full w-[75%]"></div>
+              </div>
             </div>
           </div>
         </div>

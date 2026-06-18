@@ -19,11 +19,40 @@ export async function GET(request: Request) {
   if (!adminId) return NextResponse.json({ success: false }, { status: 401 });
 
   const users = await prisma.user.findMany({
-    where: { id: { not: adminId } }, // Hide the admin from their own deletion list
-    select: { id: true, email: true, role: true, createdAt: true },
+    where: { id: { not: adminId } }, 
+    // Added isVerified to the select payload
+    select: { id: true, email: true, role: true, isVerified: true, createdAt: true },
     orderBy: { createdAt: 'desc' }
   });
   return NextResponse.json({ success: true, users }, { status: 200 });
+}
+
+// NEW: PATCH method to handle the verification toggle
+export async function PATCH(request: Request) {
+  const adminId = await verifyAdmin(request);
+  if (!adminId) return NextResponse.json({ success: false }, { status: 401 });
+
+  try {
+    const { userId, isVerified } = await request.json();
+
+    // 1. Update the root User account
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { isVerified }
+    });
+
+    // 2. If it's an Owner, also update their OwnerProfile status so grounds show as verified
+    if (updatedUser.role === 'OWNER') {
+      await prisma.ownerProfile.updateMany({
+        where: { userId: userId },
+        data: { isVerified }
+      });
+    }
+
+    return NextResponse.json({ success: true, isVerified }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: 'Failed to update verification status' }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request) {
