@@ -77,7 +77,7 @@ export default function PlayerDashboardHome() {
   return (
     <div className="space-y-8 pb-10 bg-[#0B0C10] text-[#F0EDE6] selection:bg-[#C8F55A] selection:text-black min-h-screen relative overflow-hidden">
       {/* Background glow node matching ecosystem */}
-      <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 right-0 w-125 h-125 rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
 
       {/* Hero Banner */}
       <div className="relative overflow-hidden bg-[#12161A] border border-white/5 rounded-3xl p-8 md:p-10 shadow-2xl">
@@ -124,7 +124,7 @@ export default function PlayerDashboardHome() {
             Your Upcoming Games
           </h2>
 
-          {matches.length === 0 ? (
+          {matches?.length === 0 ? (
             <div className="bg-[#12161A] rounded-2xl p-12 border border-white/5 text-center flex flex-col items-center justify-center shadow-xl">
               <div className="w-14 h-14 bg-[#0A1F1A] border border-white/5 rounded-xl flex items-center justify-center text-2xl mb-4">
                 <Calendar className="w-6 h-6 text-white/30" />
@@ -134,7 +134,7 @@ export default function PlayerDashboardHome() {
             </div>
           ) : (
             <div className="space-y-4">
-              {matches.map((match) => (
+              {matches?.map((match) => (
                 <div key={match.id} className="bg-[#12161A] p-5 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#C8F55A]/20 transition-all duration-300 shadow-xl group">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-[#0A1F1A] border border-white/5 rounded-xl flex flex-col items-center justify-center shrink-0" style={DISPLAY}>

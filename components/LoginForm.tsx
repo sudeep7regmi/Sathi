@@ -20,7 +20,8 @@ export default function LoginForm() {
     else if (name === "password") setPassword(value);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
       // Fixed leading slash for absolute route consistency

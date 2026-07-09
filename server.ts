@@ -17,9 +17,31 @@ const io = new Server(server, {
   },
 });
 
+// Define strict types for our event payloads
+interface ChatMessage {
+  matchId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  timestamp: string;
+}
+
+interface TelemetryData {
+  matchId: string;
+  homeScore: number;
+  awayScore: number;
+  eventType?: string;
+}
+
+interface NotificationData {
+  targetUserId: string;
+  type: string;
+  message: string;
+}
+
 // Real-Time Event Engine
 io.on('connection', (socket: Socket) => {
-  console.log('⚡ Client connected:', socket.id);
+  console.log(`⚡ Client connected: ${socket.id}`);
 
   // 1. JOIN MATCH ROOM: Isolates chat and score updates to specific matches
   socket.on('join_match_room', (matchId: string) => {
@@ -28,25 +50,27 @@ io.on('connection', (socket: Socket) => {
   });
 
   // 2. LIVE CHAT MESSAGING
-  socket.on('send_message', (data: { matchId: string, senderId: string, senderName: string, content: string, timestamp: string }) => {
+  socket.on('send_message', (data: ChatMessage) => {
     // Broadcast to everyone in the match room EXCEPT the sender
     socket.to(data.matchId).emit('receive_message', data);
   });
 
-  // 3. LIVE SCORE UPDATES
-  socket.on('update_score', (data: { matchId: string, homeScore: number, awayScore: number, eventType: string }) => {
-    // Broadcast instantly to all spectators and players in the room
-    io.to(data.matchId).emit('score_updated', data);
+  // 3. LIVE SCORE UPDATES (FIXED FOR GLOBAL HUB)
+  socket.on('update_score', (data: TelemetryData) => {
+    // We use io.emit() here so that everyone looking at the global 
+    // Match Hub directory sees the score update instantly!
+    io.emit('score_broadcast', data);
+    console.log(`🏆 Global Score Update: Match ${data.matchId} | ${data.homeScore} - ${data.awayScore}`);
   });
 
   // 4. PUSH NOTIFICATIONS
-  socket.on('send_notification', (data: { targetUserId: string, type: string, message: string }) => {
-    // Emit a global broadcast that the frontend filters
+  socket.on('send_notification', (data: NotificationData) => {
+    // Emit a global broadcast that the frontend filters by targetUserId
     io.emit('receive_notification', data);
   });
 
   socket.on('disconnect', () => {
-    console.log('❌ Client disconnected:', socket.id);
+    console.log(`❌ Client disconnected: ${socket.id}`);
   });
 });
 

@@ -93,7 +93,7 @@ export default function LoginPage() {
             <input
               type="email"
               name="email"
-              placeholder="m.bhujel@example.com"
+              placeholder="sudeep@example.com"
               value={formData.email}
               onChange={handleChange}
               className="w-full bg-[#0A1F1A]/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#C8F55A] focus:ring-1 focus:ring-[#C8F55A] transition-all"
