@@ -21,11 +21,6 @@ interface PlayerLayoutProps {
   children: ReactNode;
 }
 
-const DISPLAY = {
-  fontFamily: "'Barlow Condensed', sans-serif",
-  fontWeight: 900,
-};
-
 export default function PlayerLayout({ children }: PlayerLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -40,7 +35,7 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
           setUserName(response.data.profile.fullName);
         }
       } catch (err: unknown) {
-        if (axios.isAxiosError(err)) console.warn("Could not populate header.");
+        if (axios.isAxiosError(err)) console.warn("Could not populate header profile.");
       }
     };
     fetchHeaderProfile();
@@ -78,44 +73,51 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
 
   return (
     <SocketProvider>
-      <div className="min-h-screen bg-[#0B0C10] flex text-[#F0EDE6] antialiased selection:bg-[#C8F55A] selection:text-black">
+      <div 
+        className="min-h-screen flex antialiased"
+        style={{ backgroundColor: "var(--bcolor)", color: "var(--tcolor)" }}
+      >
         {/* MOBILE OVERLAY BACKDROP */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-slate-900/40 z-40 md:hidden backdrop-blur-xs transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
 
         {/* SIDEBAR NAVIGATION PANEL */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-full md:w-72 bg-[#12161A] border-r border-white/5 flex flex-col transition-transform duration-300 ease-in-out 
+          className={`fixed inset-y-0 left-0 z-50 w-full md:w-72 border-r flex flex-col transition-transform duration-300 ease-in-out shadow-sm
           ${
             isSidebarOpen
               ? "translate-x-0"
               : "-translate-x-full md:translate-x-0"
           } md:sticky top-0 h-screen`}
+          style={{ 
+            backgroundColor: "var(--ccolor)", 
+            borderColor: "var(--border-color)" 
+          }}
         >
           {/* Sidebar Header branding */}
-          <div className="flex items-center justify-between p-6 border-b border-white/5">
+          <div 
+            className="flex items-center justify-between p-6 border-b"
+            style={{ borderColor: "var(--border-color)" }}
+          >
             <div className="flex items-center space-x-3">
               <div
-                className="w-10 h-10 bg-[#C8F55A] rounded-xl flex items-center justify-center font-black text-black text-xl shadow-lg shadow-[#C8F55A]/10"
-                style={DISPLAY}
+                className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-md"
+                style={{ backgroundColor: "var(--pcolor)" }}
               >
                 S
               </div>
-              <span
-                className="text-2xl font-black text-white tracking-wide uppercase"
-                style={DISPLAY}
-              >
+              <span className="text-2xl font-black tracking-wide uppercase text-slate-900">
                 SATHI
               </span>
             </div>
             {/* Close Button (Mobile Only) */}
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden text-white/50 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl cursor-pointer"
+              className="md:hidden text-slate-500 hover:text-slate-800 bg-slate-100 p-2 rounded-xl cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -133,16 +135,15 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
                   className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 text-left cursor-pointer group
                     ${
                       isActive
-                        ? "bg-[#C8F55A] text-black shadow-lg shadow-[#C8F55A]/5"
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/10"
+                        : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
                     }`}
-                  style={DISPLAY}
                 >
                   <IconComponent
                     className={`w-4 h-4 shrink-0 ${
                       isActive
-                        ? "text-black"
-                        : "text-[#C8F55A] group-hover:scale-110 transition-transform"
+                        ? "text-white"
+                        : "text-emerald-600 group-hover:scale-110 transition-transform"
                     }`}
                   />
                   <span>{link.name}</span>
@@ -152,11 +153,13 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
           </nav>
 
           {/* Sidebar Footer Container */}
-          <div className="p-4 border-t border-white/5">
+          <div 
+            className="p-4 border-t"
+            style={{ borderColor: "var(--border-color)" }}
+          >
             <button
               onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-3.5 text-red-400 hover:bg-red-500/10 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors text-left cursor-pointer"
-              style={DISPLAY}
+              className="w-full flex items-center space-x-3 px-4 py-3.5 text-red-600 hover:bg-red-50 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors text-left cursor-pointer"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               <span>Sign Out Session</span>
@@ -167,35 +170,32 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
         {/* MAIN DISPLAY PORTAL CONTAINER */}
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative">
           {/* Top Navbar Header bar */}
-          <header className="bg-[#12161A]/80 backdrop-blur-md sticky top-0 z-30 h-20 border-b border-white/5 flex items-center justify-between px-4 md:px-8">
+          <header 
+            className="backdrop-blur-md sticky top-0 z-30 h-20 border-b flex items-center justify-between px-4 md:px-8 shadow-xs"
+            style={{ 
+              backgroundColor: "rgba(255, 255, 255, 0.85)", 
+              borderColor: "var(--border-color)" 
+            }}
+          >
             <div className="flex items-center">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="text-white focus:outline-none md:hidden w-9 h-9 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/5 cursor-pointer"
+                className="text-slate-700 focus:outline-none md:hidden w-9 h-9 border border-slate-200 rounded-xl flex items-center justify-center hover:bg-slate-100 cursor-pointer"
               >
                 <Menu className="w-4 h-4" />
               </button>
-              <h2
-                className="hidden sm:block text-2xl font-black text-[#F0EDE6] uppercase tracking-wider"
-                style={DISPLAY}
-              >
+              <h2 className="hidden sm:block text-xl font-bold uppercase tracking-wide text-slate-900">
                 {navLinks.find((l) => l.path === pathname)?.name || "Dashboard"}
               </h2>
             </div>
 
             {/* Identity badge profile widget */}
-            <div className="flex items-center space-x-3 bg-[#0B0C10] pl-4 pr-1.5 py-1.5 rounded-full border border-white/5">
-              <span
-                className="text-xs font-bold uppercase text-white/80 hidden sm:inline tracking-wider"
-                style={DISPLAY}
-              >
+            <div className="flex items-center space-x-3 bg-white pl-4 pr-1.5 py-1.5 rounded-full border border-slate-200 shadow-xs">
+              <span className="text-xs font-bold uppercase text-slate-700 hidden sm:inline tracking-wider">
                 {userName}
               </span>
-              <div
-                className="w-8 h-8 rounded-full bg-[#A1DB13]/10 border border-[#C8F55A]/30 text-[#C8F55A] font-bold flex items-center justify-center text-xs tracking-wider"
-                style={DISPLAY}
-              >
-                {getInitials(userName) || <User className="w-3 h-3" />}
+              <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold flex items-center justify-center text-xs tracking-wider">
+                {getInitials(userName) || <User className="w-3.5 h-3.5" />}
               </div>
             </div>
           </header>

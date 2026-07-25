@@ -24,7 +24,7 @@ export default function RegisterPage() {
     fullName: '',
     phoneNumber: '',
     location: '',
-    age: 22,
+    age: '',
     preferredPosition: 'Midfielder',
     skillLevel: 'INTERMEDIATE',
   });
@@ -50,23 +50,49 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loading) return; // Prevent duplicate clicks
+  
     setError(null);
     setLoading(true);
-
+  
     try {
-      const payload = activeTab === 'PLAYER'
-        ? { ...playerData, role: 'PLAYER' }
-        : { ...ownerData, role: 'OWNER' };
-
-      const response = await apiClient.post('/api/register', payload);
-      if (response.data.success) {
-        router.push('/login');
+      // Format payload and ensure numeric types are cast correctly
+      const payload = activeTab === "PLAYER"
+        ? {
+            ...playerData,
+            age: Number(playerData.age) || 0,
+            role: "PLAYER",
+          }
+        : {
+            ...ownerData,
+            role: "OWNER",
+          };
+  
+      const response = await apiClient.post("/api/register", payload);
+  
+      if (response.data?.success) {
+        router.push("/login");
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Registration failed. Please check your details.');
+        const resData = err.response?.data;
+  
+        let errorMessage = "Registration failed. Please check your details.";
+  
+        if (typeof resData?.message === "string") {
+          errorMessage = resData.message;
+        } else if (typeof resData?.errors === "string") {
+          errorMessage = resData.errors;
+        } else if (resData?.errors && typeof resData.errors === "object") {
+          // Grab first field error from Zod or validation map
+          const firstKey = Object.keys(resData.errors)[0];
+          const val = resData.errors[firstKey];
+          errorMessage = Array.isArray(val) ? val[0] : String(val);
+        }
+  
+        setError(errorMessage);
       } else {
-        setError('Something went wrong.');
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -124,7 +150,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={LABEL_CLASS}>Full Name</label>
-                  <input type="text" name="fullName" required value={playerData.fullName} onChange={handlePlayerChange} placeholder="Sujal Shrestha" className={INPUT_CLASS} />
+                  <input type="text" name="fullName" required value={playerData.fullName} onChange={handlePlayerChange} placeholder="Sudeep Regmi" className={INPUT_CLASS} />
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Phone Number</label>

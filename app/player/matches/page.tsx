@@ -18,7 +18,6 @@ import {
   Trophy,
   Trash2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface Match {
   id: string;
@@ -31,11 +30,6 @@ interface Match {
   skillReq: string;
   liveScore?: { homeScore: number; awayScore: number };
 }
-
-const DISPLAY = {
-  fontFamily: "'Barlow Condensed', sans-serif",
-  fontWeight: 900,
-};
 
 export default function MatchHubPage() {
   const [matches, setMatches] = useState<Match[]>([]);
@@ -50,13 +44,12 @@ export default function MatchHubPage() {
     matchType: "5v5",
     skillReq: "INTERMEDIATE",
   });
-
   const [message, setMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
   const { socket, isConnected } = useSocket();
-  const router = useRouter();
+
   useEffect(() => {
     const fetchHubData = async () => {
       try {
@@ -68,31 +61,11 @@ export default function MatchHubPage() {
         if (profileRes.data.success)
           setCurrentUserId(profileRes.data.profile.userId);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching hub data:", err);
       }
     };
     fetchHubData();
   }, []);
-
-
-  // ====== 🚨 SECURE MATCH DELETION ======
-  const handleDeleteMatch = async (matchId: string) => {
-    if (!confirm("Are you sure you want to permanently cancel and delete this match?")) return;
-
-    try {
-      const res = await apiClient.post("/api/player/matches/delete", { matchId });
-      if (res.data.success) {
-        // Remove the match from local state instantly
-        setMatches((prev) => prev.filter((match) => match.id !== matchId));
-        setMessage({ text: "Match successfully removed from directory.", type: "success" });
-      }
-    } catch (err) {
-      console.error("Failed to delete match:", err);
-      setMessage({ text: "Failed to delete the match. Try again.", type: "error" });
-    }
-  };
-
-
 
   // ====== ⚡ REAL-TIME TELEMETRY SOCKET LISTENER ======
   useEffect(() => {
@@ -134,6 +107,21 @@ export default function MatchHubPage() {
     const newHome = team === "HOME" ? currentHome + 1 : currentHome;
     const newAway = team === "AWAY" ? currentAway + 1 : currentAway;
 
+    // Optimistic UI update
+    setMatches((prevMatches) =>
+      prevMatches.map((match) =>
+        match.id === matchId
+          ? {
+              ...match,
+              liveScore: {
+                homeScore: newHome,
+                awayScore: newAway,
+              },
+            }
+          : match
+      )
+    );
+
     if (socket) {
       socket.emit("update_score", {
         matchId,
@@ -148,9 +136,9 @@ export default function MatchHubPage() {
         team,
         action: "INCREMENT",
       });
-      router.refresh(); // Refresh the page to reflect the latest score
     } catch (err) {
-      console.error("Failed to commit tracking matrix to engine.");
+      console.error("Failed to sync score update with backend", err);
+      // Rollback on failure
       setMatches((prevMatches) =>
         prevMatches.map((match) =>
           match.id === matchId
@@ -164,6 +152,30 @@ export default function MatchHubPage() {
             : match
         )
       );
+    }
+  };
+
+  const handleDeleteMatch = async (matchId: string) => {
+    if (!confirm("Are you sure you want to permanently cancel and delete this match?"))
+      return;
+
+    try {
+      const res = await apiClient.post("/api/player/matches/delete", {
+        matchId,
+      });
+      if (res.data.success) {
+        setMatches((prev) => prev.filter((match) => match.id !== matchId));
+        setMessage({
+          text: "Match successfully removed from directory.",
+          type: "success",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete match:", err);
+      setMessage({
+        text: "Failed to delete the match. Try again.",
+        type: "error",
+      });
     }
   };
 
@@ -205,7 +217,9 @@ export default function MatchHubPage() {
   const handleJoinMatch = async (matchId: string) => {
     setMessage(null);
     try {
-      const res = await apiClient.post("/api/player/matches/join", { matchId });
+      const res = await apiClient.post("/api/player/matches/join", {
+        matchId,
+      });
       if (res.data.success) {
         setMessage({
           text: "Join request sent! Waiting for organizer approval.",
@@ -223,79 +237,71 @@ export default function MatchHubPage() {
   };
 
   const inputClass =
-    "w-full bg-[#0A1F1A]/30 border border-white/5 rounded-xl p-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#C8F55A]/40 focus:bg-[#0A1F1A]/60 transition-all appearance-none";
+    "w-full bg-white border border-slate-200 rounded-xl p-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all appearance-none shadow-sm";
 
   return (
-    <div className="space-y-8 pb-10 bg-[#0B0C10] text-[#F0EDE6] min-h-screen relative overflow-hidden selection:bg-[#C8F55A] selection:text-black">
-      <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
-
-      {/* Dynamic Status Header */}
-      <div className="flex justify-between items-center bg-[#12161A] p-6 rounded-2xl border border-white/5 shadow-xl">
+    <div
+      className="min-h-screen pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8"
+      style={{ backgroundColor: "var(--bcolor)" }}
+    >
+      {/* Header Bar */}
+      <div
+        className="flex justify-between items-center p-6 rounded-2xl border shadow-sm mt-6"
+        style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
+      >
         <div>
-          <h1
-            className="text-2xl font-black uppercase text-white tracking-wide"
-            style={DISPLAY}
-          >
+          <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">
             MATCH SCHEDULER
           </h1>
-          <p className="text-xs font-bold text-white/40 tracking-wider uppercase mt-0.5">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">
             Manage live games or sign up for open slots.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-[#0B0C10] px-4 py-2 rounded-xl border border-white/5">
+        <div className="flex items-center gap-2.5 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
           <div
-            className={`w-2 h-2 rounded-full ${
-              isConnected ? "bg-[#C8F55A] animate-pulse" : "bg-red-500"
+            className={`w-2.5 h-2.5 rounded-full ${
+              isConnected ? "bg-emerald-500 animate-pulse" : "bg-red-500"
             }`}
           />
-          <span
-            className="text-[9px] font-bold uppercase tracking-widest text-white/50"
-            style={DISPLAY}
-          >
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
             {isConnected ? "Telemetry Active" : "Offline Mode"}
           </span>
         </div>
       </div>
 
+      {/* Alert Messages */}
       {message && (
         <div
-          className={`p-4 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg border flex items-center gap-2.5 relative z-10 ${
+          className={`p-4 rounded-xl font-bold text-xs uppercase tracking-wider border flex items-center gap-3 ${
             message.type === "success"
-              ? "bg-[#C8F55A]/10 text-[#C8F55A] border-[#C8F55A]/20"
-              : "bg-red-500/10 text-red-400 border-red-500/20"
+              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+              : "bg-red-50 text-red-800 border-red-200"
           }`}
-          style={DISPLAY}
         >
           {message.type === "success" ? (
-            <CheckCircle2 className="w-4 h-4" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           ) : (
-            <AlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="w-5 h-5 text-red-600" />
           )}
           <span>{message.text}</span>
         </div>
       )}
 
-      {/* Match Form */}
-      <div className="bg-[#12161A] p-6 md:p-8 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden">
-        <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
-          <PlusCircle className="w-4 h-4 text-[#C8F55A]" />
-          <h2
-            className="text-lg font-bold uppercase tracking-wider text-white"
-            style={DISPLAY}
-          >
+      {/* Host Match Form */}
+      <div
+        className="p-6 md:p-8 rounded-2xl border shadow-sm space-y-6"
+        style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
+      >
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
+          <PlusCircle className="w-5 h-5 text-emerald-600" />
+          <h2 className="text-lg font-bold uppercase tracking-wide text-slate-900">
             Host a New Match
           </h2>
         </div>
 
-        <form
-          onSubmit={handleCreateMatch}
-          className="grid grid-cols-1 md:grid-cols-4 gap-5 relative z-10"
-        >
+        <form onSubmit={handleCreateMatch} className="grid grid-cols-1 md:grid-cols-4 gap-5">
           <div className="md:col-span-2">
-            <label
-              className="block text-[10px] uppercase tracking-widest font-bold text-white/40 mb-1.5"
-              style={DISPLAY}
-            >
+            <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
               Match Title
             </label>
             <input
@@ -309,10 +315,7 @@ export default function MatchHubPage() {
             />
           </div>
           <div className="md:col-span-2">
-            <label
-              className="block text-[10px] uppercase tracking-widest font-bold text-white/40 mb-1.5"
-              style={DISPLAY}
-            >
+            <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
               Location
             </label>
             <input
@@ -326,10 +329,7 @@ export default function MatchHubPage() {
             />
           </div>
           <div>
-            <label
-              className="block text-[10px] uppercase tracking-widest font-bold text-white/40 mb-1.5"
-              style={DISPLAY}
-            >
+            <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
               Date
             </label>
             <input
@@ -342,10 +342,7 @@ export default function MatchHubPage() {
             />
           </div>
           <div>
-            <label
-              className="block text-[10px] uppercase tracking-widest font-bold text-white/40 mb-1.5"
-              style={DISPLAY}
-            >
+            <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
               Start Time
             </label>
             <input
@@ -358,10 +355,7 @@ export default function MatchHubPage() {
             />
           </div>
           <div>
-            <label
-              className="block text-[10px] uppercase tracking-widest font-bold text-white/40 mb-1.5"
-              style={DISPLAY}
-            >
+            <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
               End Time
             </label>
             <input
@@ -374,10 +368,7 @@ export default function MatchHubPage() {
             />
           </div>
           <div>
-            <label
-              className="block text-[10px] uppercase tracking-widest font-bold text-white/40 mb-1.5"
-              style={DISPLAY}
-            >
+            <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-1.5">
               Format
             </label>
             <div className="relative">
@@ -390,7 +381,7 @@ export default function MatchHubPage() {
                 <option value="5v5">5v5 Format</option>
                 <option value="7v7">7v7 Format</option>
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/40 text-xs">
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 text-xs">
                 ▼
               </div>
             </div>
@@ -398,8 +389,7 @@ export default function MatchHubPage() {
           <div className="md:col-span-4 flex items-end justify-end mt-2">
             <button
               type="submit"
-              className="bg-[#C8F55A] hover:bg-[#bada52] text-black font-bold py-3.5 px-8 rounded-xl transition-colors text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[#C8F55A]/5 w-full sm:w-auto justify-center cursor-pointer"
-              style={DISPLAY}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-8 rounded-xl transition-all text-xs uppercase tracking-wider flex items-center gap-2 shadow-md shadow-emerald-600/10 w-full sm:w-auto justify-center cursor-pointer"
             >
               <Swords className="w-4 h-4" /> Publish Match to Hub
             </button>
@@ -407,22 +397,16 @@ export default function MatchHubPage() {
         </form>
       </div>
 
-      {/* Matches Grid */}
-      <div className="relative z-10">
-        <h2
-          className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3 mb-6"
-          style={DISPLAY}
-        >
-          <span className="w-1.5 h-6 bg-[#C8F55A] rounded-full"></span>
+      {/* Global Directory Grid */}
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wide flex items-center gap-3 mb-6">
+          <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
           Global Directory
         </h2>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {matches.length === 0 ? (
-            <p
-              className="text-white/40 text-sm uppercase tracking-wider font-bold"
-              style={DISPLAY}
-            >
+            <p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
               No matches are currently active in the directory.
             </p>
           ) : (
@@ -434,41 +418,35 @@ export default function MatchHubPage() {
               return (
                 <div
                   key={m.id}
-                  className="bg-[#12161A] rounded-2xl border border-white/5 shadow-xl flex flex-col justify-between overflow-hidden group hover:border-white/10 transition-all duration-200"
+                  className="rounded-2xl border shadow-sm flex flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-200"
+                  style={{
+                    backgroundColor: "var(--ccolor)",
+                    borderColor: "var(--border-color)",
+                  }}
                 >
                   {/* Card Info Area */}
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between gap-4">
-                      <h3
-                        className="font-bold text-xl text-white group-hover:text-[#C8F55A] transition-colors uppercase tracking-wide line-clamp-1"
-                        style={DISPLAY}
-                      >
+                      <h3 className="font-extrabold text-lg text-slate-900 group-hover:text-emerald-600 transition-colors uppercase tracking-tight line-clamp-1">
                         {m.title}
                       </h3>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold tracking-wider bg-blue-500/10 border border-blue-500/20 text-blue-400 uppercase"
-                          style={DISPLAY}
-                        >
-                          <Users className="w-2.5 h-2.5" /> {m.matchType}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+                          <Users className="w-3 h-3" /> {m.matchType}
                         </span>
-                        <span
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase"
-                          style={DISPLAY}
-                        >
-                          <Activity className="w-2.5 h-2.5" /> {m.skillReq}
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider bg-amber-50 text-amber-700 border border-amber-200 uppercase">
+                          <Activity className="w-3 h-3" /> {m.skillReq}
                         </span>
                       </div>
-                      
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-white/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-medium text-slate-600">
                       <p className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-white/20" />{" "}
+                        <MapPin className="w-4 h-4 text-slate-400" />
                         <span className="line-clamp-1">{m.location}</span>
                       </p>
                       <p className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-white/20" />{" "}
+                        <Calendar className="w-4 h-4 text-slate-400" />
                         <span>
                           {new Date(m.date).toLocaleDateString(undefined, {
                             month: "short",
@@ -480,27 +458,21 @@ export default function MatchHubPage() {
                     </div>
                   </div>
 
-                  {/* LIVE TELEMETRY MATRIX NODE */}
-                  <div className="bg-[#0B0C10] border-t border-b border-white/5 p-5 flex flex-col items-center justify-center">
-                    <div className="flex items-center gap-1.5 mb-3">
-                      <Trophy className="w-3.5 h-3.5 text-[#C8F55A]" />
-                      <span
-                        className="text-[9px] font-bold text-white/30 uppercase tracking-widest"
-                        style={DISPLAY}
-                      >
-                        Live Feed Score
+                  {/* Score Matrix Node */}
+                  <div className="bg-emerald-50/50 border-t border-b border-emerald-100/60 p-5 flex flex-col items-center justify-center">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Trophy className="w-4 h-4 text-emerald-600" />
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        Live Score Matrix
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-center gap-10 w-full">
+                    <div className="flex items-center justify-center gap-12 w-full">
                       <div className="flex flex-col items-center">
-                        <span className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1">
                           Squad Alpha
                         </span>
-                        <span
-                          className="text-4xl font-black text-white"
-                          style={DISPLAY}
-                        >
+                        <span className="text-3xl font-black text-slate-900">
                           {homeScore}
                         </span>
                         {isOrganizer && (
@@ -513,28 +485,22 @@ export default function MatchHubPage() {
                                 awayScore
                               )
                             }
-                            className="mt-2 bg-white/5 border border-white/10 hover:border-[#C8F55A]/30 text-white hover:text-[#C8F55A] px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-colors"
+                            className="mt-2 bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-xs transition-colors cursor-pointer"
                           >
                             +1 Goal
                           </button>
                         )}
                       </div>
 
-                      <span
-                        className="text-lg font-black text-white/10"
-                        style={DISPLAY}
-                      >
+                      <span className="text-base font-black text-slate-300">
                         VS
                       </span>
 
                       <div className="flex flex-col items-center">
-                        <span className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1">
                           Squad Bravo
                         </span>
-                        <span
-                          className="text-4xl font-black text-[#C8F55A]"
-                          style={DISPLAY}
-                        >
+                        <span className="text-3xl font-black text-emerald-600">
                           {awayScore}
                         </span>
                         {isOrganizer && (
@@ -547,7 +513,7 @@ export default function MatchHubPage() {
                                 awayScore
                               )
                             }
-                            className="mt-2 bg-white/5 border border-white/10 hover:border-[#C8F55A]/30 text-white hover:text-[#C8F55A] px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-colors"
+                            className="mt-2 bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-xs transition-colors cursor-pointer"
                           >
                             +1 Goal
                           </button>
@@ -556,22 +522,19 @@ export default function MatchHubPage() {
                     </div>
                   </div>
 
-                  {/* Interactive Trigger Node */}
-                 {/* Interactive Trigger Node */}
-                 <div className="p-4 bg-[#12161A] flex gap-3">
+                  {/* Actions */}
+                  <div className="p-4 flex gap-3">
                     <button
                       onClick={() => handleJoinMatch(m.id)}
-                      className="flex-1 bg-white/5 border border-white/10 hover:border-[#C8F55A]/30 text-white hover:text-[#C8F55A] py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md"
-                      style={DISPLAY}
+                      className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                     >
-                      <Flame className="w-3.5 h-3.5" /> Request Pitch Entry
+                      <Flame className="w-4 h-4 text-emerald-400" /> Request Pitch Entry
                     </button>
 
-                    {/* ONLY VISIBLE TO THE ORGANIZER */}
                     {isOrganizer && (
                       <button
                         onClick={() => handleDeleteMatch(m.id)}
-                        className="bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white text-red-400 p-3 rounded-xl transition-all cursor-pointer group flex items-center justify-center"
+                        className="bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white text-red-600 p-3 rounded-xl transition-all cursor-pointer group flex items-center justify-center shadow-xs"
                         title="Delete Match"
                       >
                         <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />

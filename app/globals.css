@@ -1,10 +1,39 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   DESIGN SYSTEM COLOR MATRIX
+   Change any color value here to globally update the app's palette.
+   ========================================================================== */
 :root {
+  /* --- BASE PALETTE --- */
   --background: #ffffff;
   --foreground: #111827;
-}
 
+  
+  --bcolor: #f4f8f5;        /* Whitish-Green Background */
+  --ccolor: #ffffff;        /* Crisp White Cards & Surfaces */
+  --ccolor-hover: #f9fbf9;  /* Card Hover State */
+  --tcolor: #0f172a;        /* Main High-Contrast Text (Deep Slate/Black) */
+  --tcolor-muted: #64748b;  /* Muted Text / Subtitles */
+  
+  /* --- BORDERS & ACCENTS --- */
+  --border-color: #e2e8f0;  /* Subtle Card/Input Borders */
+  --border-focus: #10b981;  /* Vibrant Emerald Focus Ring */
+  
+  /* --- BRAND & ACTION COLORS --- */
+  --pcolor: #10b981;        /* Primary Accent (Emerald Green) */
+  --pcolor-hover: #059669;  /* Primary Accent Darker Hover */
+  --pcolor-light: #ecfdf5;  /* Ultra Light Green Soft Fill */
+  --scolor: #064e3b;        /* Secondary Dark Accent (Deep Emerald) */
+  
+  /* --- STATUS BADGES --- */
+  --success-bg: #dcfce7;
+  --success-text: #15803d;
+  --error-bg: #fee2e2;
+  --error-text: #b91c1c;
+  --warning-bg: #fef3c7;
+  --warning-text: #b45309;
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,8 +41,30 @@
   --font-mono: var(--font-geist-mono);
 }
 
+
+/* Base Body Styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bcolor);
+  color: var(--tcolor);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Custom Utilities based on CSS Variables */
+.bg-app-base { background-color: var(--bcolor); }
+.bg-app-card { background-color: var(--ccolor); }
+.bg-app-card-hover:hover { background-color: var(--ccolor-hover); }
+.text-app-main { color: var(--tcolor); }
+.text-app-muted { color: var(--tcolor-muted); }
+.border-app { border-color: var(--border-color); }
+
+.btn-primary {
+  background-color: var(--pcolor);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--pcolor-hover);
 }
