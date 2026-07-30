@@ -20,7 +20,7 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      await apiClient.post('/api/auth/logout');
+      await apiClient.post('/api/logout');
       router.push('/login');
     } catch (error) {
       console.error('Logout failed', error);
@@ -45,14 +45,15 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
 
       {/* Persistent / Responsive Dashboard Sidebar */}
       <aside 
-        className={`w-64 min-h-screen p-5 flex flex-col justify-between fixed md:sticky top-0 transition-transform duration-300 border-r z-50 shadow-sm ${
+        className={`w-64 h-screen p-5 fixed md:sticky top-0 flex flex-col justify-between transition-transform duration-300 border-r z-50 shadow-sm ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
       >
-        <div>
+        {/* Top Content Area */}
+        <div className="flex flex-col flex-1 overflow-hidden">
           {/* Header Branding node */}
-          <div className="flex items-center justify-between pb-6 border-b border-slate-200 mb-6">
+          <div className="flex items-center justify-between pb-6 border-b border-slate-200 shrink-0">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-black text-white text-xl shadow-xs">
                 S
@@ -63,13 +64,16 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
             </div>
             
             {/* Mobile close interactive node */}
-            <button className="md:hidden text-slate-500 hover:text-slate-800 bg-slate-100 p-1.5 rounded-lg" onClick={() => setIsSidebarOpen(false)}>
+            <button 
+              className="md:hidden text-slate-500 hover:text-slate-800 bg-slate-100 p-1.5 rounded-lg cursor-pointer" 
+              onClick={() => setIsSidebarOpen(false)}
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Navigation link architecture */}
-          <nav className="space-y-1.5">
+          <nav className="space-y-1.5 pt-6 overflow-y-auto flex-1 pr-1">
             <button 
               onClick={() => { router.push('/owner'); setIsSidebarOpen(false); }} 
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 group cursor-pointer ${
@@ -108,8 +112,8 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
 
-        {/* Profile Termination / Signout Section */}
-        <div className="pt-4 border-t border-slate-200">
+        {/* Profile Termination / Signout Section (Fixed Bottom) */}
+        <div className="pt-4 mt-auto border-t border-slate-200 shrink-0">
           <button 
             onClick={handleLogout} 
             className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
@@ -125,7 +129,7 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
         
         {/* Upper Portal Header bar */}
         <header 
-          className="backdrop-blur-md h-16 border-b flex items-center px-6 sticky top-0 justify-between md:justify-end z-40 shadow-xs"
+          className="backdrop-blur-md h-16 border-b flex items-center px-6 sticky top-0 justify-between md:justify-end z-30 shadow-xs"
           style={{ backgroundColor: "rgba(255, 255, 255, 0.85)", borderColor: "var(--border-color)" }}
         >
            <button 

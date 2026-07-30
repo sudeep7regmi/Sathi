@@ -4,11 +4,7 @@ import { jwtVerify } from "jose";
 
 // Define the exact paths that do not require authentication
 const publicRoutes = ["/", "/login", "/register"];
-const publicApiRoutes = [
-  "/api/login",
-  "/api/register",
-  "/api/logout",
-];
+const publicApiRoutes = ["/api/login", "/api/register", "/api/logout"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -81,5 +77,5 @@ export async function proxy(request: NextRequest) {
 
 // Target all routes except standard static files
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|faq|privacy|terms|favicon.ico).*)"],
 };
