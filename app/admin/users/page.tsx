@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/axios';
+import Link from 'next/link';
 import { 
   Users, 
   Mail, 
-  ShieldCheck, 
-  UserX, 
   Calendar, 
   BadgeCheck, 
   AlertCircle, 
-  Loader2 
+  Loader2,
+  Edit3,
+  UserX
 } from 'lucide-react';
 
 interface User { 
@@ -87,7 +88,7 @@ export default function AdminUsersPage() {
             <span className="w-1.5 h-6 bg-[#C8F55A] rounded-full"></span>
             User Directory
           </h1>
-          <p className="text-white/50 text-sm mt-1">Monitor, verify, and moderate all system account classifications.</p>
+          <p className="text-white/50 text-sm mt-1">Monitor, verify, update stats, and moderate all system accounts.</p>
         </div>
         
         <div className="bg-[#12161A] px-4 py-2.5 rounded-xl border border-white/5 shadow-xl shrink-0">
@@ -97,7 +98,7 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Core Platform Registry Registry Box Layout */}
+      {/* Core Platform Registry Box Layout */}
       <div className="bg-[#12161A] rounded-2xl border border-white/5 shadow-2xl overflow-hidden relative z-10">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -129,7 +130,7 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     
-                    {/* Role Tag Configuration Render Node */}
+                    {/* Role Tag */}
                     <td className="p-4 lg:p-5">
                       <span 
                         className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider border ${
@@ -143,7 +144,7 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     
-                    {/* Interactive Realtime Verified Monitor Tag Status Node */}
+                    {/* Verified Tag Status */}
                     <td className="p-4 lg:p-5">
                       {user.isVerified ? (
                         <span className="text-xs font-bold text-[#C8F55A] flex items-center gap-1.5" style={DISPLAY}>
@@ -156,7 +157,7 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     
-                    {/* Timestamp Calendar Column */}
+                    {/* Timestamp */}
                     <td className="p-4 lg:p-5 text-xs text-white/50">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-white/20" />
@@ -164,15 +165,25 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     
-                    {/* System Interactive Management Trigger Nodes Panel */}
+                    {/* Actions Panel with Edit Stats */}
                     <td className="p-4 lg:p-5 text-right whitespace-nowrap">
                       <div className="inline-flex gap-2">
+                        
+                        {/* Edit Stats Link */}
+                        <Link
+                          href={`/admin/users/${user.id}/edit`}
+                          className="text-[10px] font-bold bg-[#C8F55A]/10 border border-[#C8F55A]/30 text-[#C8F55A] hover:bg-[#C8F55A] hover:text-black px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all flex items-center gap-1"
+                          style={DISPLAY}
+                        >
+                          <Edit3 className="w-3 h-3" /> Edit Stats
+                        </Link>
+
                         <button 
                           onClick={() => handleToggleVerification(user.id, user.isVerified)} 
                           className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border uppercase tracking-wider transition-all cursor-pointer ${
                             user.isVerified
                               ? 'bg-white/5 border-white/5 text-white/70 hover:bg-white/10 hover:text-white'
-                              : 'bg-[#C8F55A] border-[#C8F55A] text-black hover:bg-[#bada52]'
+                              : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                           }`}
                           style={DISPLAY}
                         >

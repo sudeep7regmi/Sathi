@@ -77,8 +77,8 @@ export default async function Home() {
               alt="Sathi Logo"
               width={40}
               height={40}
-              style={{ width: "auto", height: "60px" }}
-              className="h-13 w-auto rounded-b-2xl bg-green-600 mr-2 object-contain"
+              style={{ width: "auto", height: "auto" }}
+              className="h-14 w-auto rounded-b-2xl bg-emerald-600 mr-2 object-contain"
               priority
             />
             SATHI<span className="text-white/40">.app</span>
@@ -389,7 +389,7 @@ export default async function Home() {
       </section>
 
       {/* FOOTER — deep forest green */}
-    <Footer/>
+      <Footer />
     </main>
   );
 }
