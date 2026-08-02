@@ -4,6 +4,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { apiClient } from "@/lib/axios";
 import { SocketProvider } from "@/components/providers/SocketProvider";
+import PlayerSearch from "@/components/PlayerSearch"; // Adjust import path if needed
 import axios from "axios";
 import {
   LayoutDashboard,
@@ -171,26 +172,32 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative">
           {/* Top Navbar Header bar */}
           <header 
-            className="backdrop-blur-md sticky top-0 z-30 h-20 border-b flex items-center justify-between px-4 md:px-8 shadow-xs"
+            className="backdrop-blur-md sticky top-0 z-30 h-20 border-b flex items-center justify-between px-4 md:px-8 shadow-xs gap-4"
             style={{ 
               backgroundColor: "rgba(255, 255, 255, 0.85)", 
               borderColor: "var(--border-color)" 
             }}
           >
-            <div className="flex items-center">
+            {/* Left Section: Mobile Menu Button & Current Page Heading */}
+            <div className="flex items-center shrink-0">
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 className="text-slate-700 focus:outline-none md:hidden w-9 h-9 border border-slate-200 rounded-xl flex items-center justify-center hover:bg-slate-100 cursor-pointer"
               >
                 <Menu className="w-4 h-4" />
               </button>
-              <h2 className="hidden sm:block text-xl font-bold uppercase tracking-wide text-slate-900">
+              <h2 className="hidden xl:block text-xl font-bold uppercase tracking-wide text-slate-900 ml-2 md:ml-0">
                 {navLinks.find((l) => l.path === pathname)?.name || "Dashboard"}
               </h2>
             </div>
 
-            {/* Identity badge profile widget */}
-            <div className="flex items-center space-x-3 bg-white pl-4 pr-1.5 py-1.5 rounded-full border border-slate-200 shadow-xs">
+            {/* Center Section: Player Search Bar */}
+            <div className="flex-1 max-w-md mx-2 md:mx-4">
+              <PlayerSearch className="w-full" limit={5} />
+            </div>
+
+            {/* Right Section: Identity badge profile widget */}
+            <div className="flex items-center space-x-3 bg-white pl-4 pr-1.5 py-1.5 rounded-full border border-slate-200 shadow-xs shrink-0">
               <span className="text-xs font-bold uppercase text-slate-700 hidden sm:inline tracking-wider">
                 {userName}
               </span>

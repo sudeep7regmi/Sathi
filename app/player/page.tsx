@@ -146,6 +146,7 @@ export default function PlayerDashboardHome() {
   });
 
   useEffect(() => {
+
     const fetchDashboardMetrics = async () => {
       try {
         const response = await apiClient.get('/api/player/dashboard');
