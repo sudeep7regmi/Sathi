@@ -6,24 +6,38 @@ import axios from 'axios';
 import { 
   Inbox, 
   UserCheck, 
-  ShieldAlert, 
-  Activity, 
-  TrendingUp, 
+  ShieldCheck, 
   Calendar, 
   Loader2, 
-  Check, 
-  X 
+  X, 
+  Target, 
+  Flame, 
+  User 
 } from 'lucide-react';
+
+interface RequestPlayer {
+  id: string;
+  fullName: string;
+  preferredPosition: string;
+  skillLevel: string;
+  goals?: number;
+  assists?: number;
+  user?: {
+    isVerified?: boolean;
+  };
+}
 
 interface JoinRequest {
   id: string;
-  match: { title: string; date: string; };
-  player: { fullName: string; preferredPosition: string; skillLevel: string; rating: number; };
+  createdAt?: string;
+  match: { id: string; title: string; date: string; location?: string };
+  player: RequestPlayer;
 }
 
 export default function MatchRequestsPage() {
   const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -42,17 +56,28 @@ export default function MatchRequestsPage() {
   }, []);
 
   const handleProcessRequest = async (requestId: string, action: 'APPROVE' | 'REJECT') => {
+    setProcessingId(requestId);
     try {
       const res = await apiClient.put('/api/player/matches/requests', { requestId, action });
       if (res.data.success) {
-        setRequests(requests.filter(req => req.id !== requestId));
+        setRequests(prev => prev.filter(req => req.id !== requestId));
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         alert(err.response?.data?.message || 'Error processing request');
       }
+    } finally {
+      setProcessingId(null);
     }
   };
+
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
 
   if (loading) {
     return (
@@ -60,8 +85,8 @@ export default function MatchRequestsPage() {
         className="p-12 flex flex-col items-center justify-center gap-3 text-slate-500 min-h-[500px]"
         style={{ backgroundColor: "var(--bcolor)" }}
       >
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
-        <span className="text-xs uppercase tracking-wider font-bold">Checking tactical inbox...</span>
+        <Loader2 className="w-7 h-7 animate-spin text-emerald-600" />
+        <span className="text-xs uppercase tracking-wider font-bold">Loading Match Requests...</span>
       </div>
     );
   }
@@ -71,88 +96,128 @@ export default function MatchRequestsPage() {
       className="space-y-6 pb-12 min-h-screen"
       style={{ backgroundColor: "var(--bcolor)", color: "var(--tcolor)" }}
     >
-      {/* Structural Headers */}
-      <div className="border-b border-slate-200 pb-5 relative z-10">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 uppercase tracking-tight flex items-center gap-3">
-          <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
-          Incoming Match Requests
-        </h1>
-        <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold mt-1">
-          Review squad assets looking to deploy into your active arenas.
-        </p>
+      {/* Page Header */}
+      <div className="border-b border-slate-200/80 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+            <span className="w-2 h-7 bg-emerald-500 rounded-full"></span>
+            Incoming Requests
+          </h1>
+          <p className="text-slate-500 text-xs uppercase tracking-wider font-semibold mt-1">
+            Review player applications for your upcoming matches.
+          </p>
+        </div>
+
+        {/* Pending Counter */}
+        <div className="self-start sm:self-auto bg-emerald-50 border border-emerald-200 text-emerald-800 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>{requests.length} Pending {requests.length === 1 ? 'Request' : 'Requests'}</span>
+        </div>
       </div>
 
-      {/* Primary Sandbox Views */}
+      {/* Main Request Grid */}
       {requests.length === 0 ? (
         <div 
-          className="border border-dashed border-slate-300 rounded-2xl p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-3 relative z-10 shadow-xs"
+          className="border border-dashed border-slate-300 rounded-2xl p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-3 shadow-xs"
           style={{ backgroundColor: "var(--ccolor)" }}
         >
-          <Inbox className="w-8 h-8 text-slate-300" />
+          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+            <Inbox className="w-6 h-6" />
+          </div>
           <p className="text-sm uppercase tracking-wider font-bold text-slate-600">
-            Your roster inbox is currently empty. No pending requests.
+            No pending join requests in your inbox right now.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
-          {requests.map((req) => (
-            <div 
-              key={req.id} 
-              className="p-5 rounded-2xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-200 group"
-              style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
-            >
-              <div>
-                {/* Meta Indicator Block */}
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg uppercase tracking-wider mb-3.5">
-                  <Calendar className="w-3 h-3 text-emerald-600" /> Arena: {req.match.title}
-                </span>
-                
-                {/* Profile Metric Parameters */}
-                <h3 className="font-extrabold text-lg text-slate-900 uppercase tracking-tight group-hover:text-emerald-600 transition-colors">
-                  {req.player.fullName}
-                </h3>
-                
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center shadow-xs">
-                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Position</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center justify-center gap-1 mt-0.5">
-                      <Activity className="w-3 h-3 text-blue-500" /> {req.player.preferredPosition}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {requests.map((req) => {
+            const isProcessing = processingId === req.id;
+            return (
+              <div 
+                key={req.id} 
+                className="p-6 rounded-2xl border bg-white shadow-xs flex flex-col justify-between hover:shadow-md transition-all duration-200"
+                style={{ borderColor: "var(--border-color)" }}
+              >
+                <div>
+                  {/* Match Info Banner */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
+                      <Calendar className="w-3 h-3 text-emerald-600" /> Match: {req.match.title}
                     </span>
+                    {req.createdAt && (
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        {new Date(req.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
-                  
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center shadow-xs">
-                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Tier</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center justify-center gap-1 mt-0.5">
-                      <ShieldAlert className="w-3 h-3 text-amber-500" /> {req.player.skillLevel}
-                    </span>
+
+                  {/* Player Overview */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 text-slate-800 font-extrabold text-base flex items-center justify-center shrink-0 shadow-xs">
+                      {getInitials(req.player.fullName) || <User className="w-5 h-5" />}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-lg text-slate-900 uppercase tracking-tight truncate">
+                          {req.player.fullName}
+                        </h3>
+                        {req.player.user?.isVerified && (
+                          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-label="Verified Player" />
+                        )}
+                      </div>
+
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">
+                        {req.player.preferredPosition || 'Forward'} • <span className="text-emerald-600">{req.player.skillLevel || 'Intermediate'}</span>
+                      </p>
+                    </div>
                   </div>
-                  
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center shadow-xs">
-                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Rating</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center justify-center gap-1 mt-0.5">
-                      <TrendingUp className="w-3 h-3 text-emerald-600" /> {req.player.rating}
-                    </span>
+
+                  {/* Player Performance Stats */}
+                  <div className="grid grid-cols-2 gap-3 mt-5">
+                    <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Goals Scored</span>
+                      <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                        <Target className="w-3.5 h-3.5 text-emerald-600" /> {req.player.goals ?? 0}
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assists</span>
+                      <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                        <Flame className="w-3.5 h-3.5 text-amber-500" /> {req.player.assists ?? 0}
+                      </span>
+                    </div>
                   </div>
                 </div>
+
+                {/* Direct Action Buttons */}
+                <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
+                  <button 
+                    disabled={isProcessing}
+                    onClick={() => handleProcessRequest(req.id, 'APPROVE')}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition-colors text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <UserCheck className="w-4 h-4" /> Approve
+                      </>
+                    )}
+                  </button>
+
+                  <button 
+                    disabled={isProcessing}
+                    onClick={() => handleProcessRequest(req.id, 'REJECT')}
+                    className="flex-1 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-600 font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                  >
+                    <X className="w-4 h-4" /> Dismiss
+                  </button>
+                </div>
               </div>
-              
-              {/* Dynamic Action Slots */}
-              <div className="flex space-x-3 mt-5 pt-4 border-t border-slate-100">
-                <button 
-                  onClick={() => handleProcessRequest(req.id, 'APPROVE')}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition-colors text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-                >
-                  <UserCheck className="w-3.5 h-3.5" /> Approve
-                </button>
-                <button 
-                  onClick={() => handleProcessRequest(req.id, 'REJECT')}
-                  className="flex-1 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-600 font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                >
-                  <X className="w-3.5 h-3.5" /> Dismiss
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
