@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -193,7 +193,6 @@ export default function Footer() {
           <div className="flex items-center gap-3 text-xs text-white/40">
             <span>© 2026 Sathi App Inc. All rights reserved.</span>
             <span className="hidden sm:inline">•</span>
-           
           </div>
 
           {/* Social Links */}
