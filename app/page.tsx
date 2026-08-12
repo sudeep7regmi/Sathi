@@ -11,6 +11,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Footer from "@/components/Footer";
+import SathiLogo from "@/components/ui/SathiLogo";
 
 // The app's core features remain static as they are marketing copy
 const features = [
@@ -72,7 +73,7 @@ export default async function Home() {
             style={DISPLAY}
           >
             {" "}
-            <Image
+            {/* <Image
               src="/favicon.ico"
               alt="Sathi Logo"
               width={40}
@@ -80,8 +81,9 @@ export default async function Home() {
               style={{ width: "auto", height: "auto" }}
               className="h-14 w-auto rounded-b-2xl bg-emerald-600 mr-2 object-contain"
               priority
-            />
-            SATHI<span className="text-white/40">.app</span>
+            /> */}
+            <SathiLogo/>
+           
           </Link>
         </div>
 

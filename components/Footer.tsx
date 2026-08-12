@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import SathiLogo from "./ui/SathiLogo";
 
 export default function Footer() {
   const DISPLAY = {
@@ -16,13 +17,14 @@ export default function Footer() {
           {/* Brand & Newsletter Column */}
           <div className="md:col-span-5 space-y-6">
             <div className="flex items-center gap-3">
-              <Image
+              {/* <Image
                 src="/favicon.ico" // Replace with your logo path
                 alt="Sathi Logo"
                 width={36}
                 height={36}
                 className="object-contain"
-              />
+              /> */}
+              <SathiLogo/>
               <span
                 className="text-[#C8F55A] text-2xl tracking-tight font-bold"
                 style={DISPLAY}
