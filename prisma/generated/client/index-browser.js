@@ -171,6 +171,8 @@ exports.Prisma.GroundScalarFieldEnum = {
   longitude: 'longitude',
   pricePerHour: 'pricePerHour',
   amenities: 'amenities',
+  paymentQrUrl: 'paymentQrUrl',
+  paymentQrPublicId: 'paymentQrPublicId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -223,6 +225,10 @@ exports.Prisma.BookingScalarFieldEnum = {
   endTime: 'endTime',
   duration: 'duration',
   totalCost: 'totalCost',
+  paymentReceiptUrl: 'paymentReceiptUrl',
+  paymentReceiptPublicId: 'paymentReceiptPublicId',
+  paymentSubmittedAt: 'paymentSubmittedAt',
+  paymentVerifiedAt: 'paymentVerifiedAt',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -345,7 +351,9 @@ exports.Prisma.GroundOrderByRelevanceFieldEnum = {
   name: 'name',
   description: 'description',
   address: 'address',
-  amenities: 'amenities'
+  amenities: 'amenities',
+  paymentQrUrl: 'paymentQrUrl',
+  paymentQrPublicId: 'paymentQrPublicId'
 };
 
 exports.Prisma.GroundImageOrderByRelevanceFieldEnum = {
@@ -380,7 +388,9 @@ exports.Prisma.JoinRequestOrderByRelevanceFieldEnum = {
 exports.Prisma.BookingOrderByRelevanceFieldEnum = {
   id: 'id',
   userId: 'userId',
-  groundId: 'groundId'
+  groundId: 'groundId',
+  paymentReceiptUrl: 'paymentReceiptUrl',
+  paymentReceiptPublicId: 'paymentReceiptPublicId'
 };
 
 exports.Prisma.TournamentOrderByRelevanceFieldEnum = {

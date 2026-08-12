@@ -11,14 +11,14 @@ import {
   Calendar, 
   MapPin, 
   Clock, 
-  Gamepad2, 
   Loader2,
   Target,
   Dumbbell,
   Compass,
-  Edit3,
-  Check,
-  X
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Coins
 } from 'lucide-react';
 
 interface PlayerProfile {
@@ -32,25 +32,17 @@ interface PlayerProfile {
   goals: number;
   assists: number;
   location: string;
-  // Dynamic user-customizable performance attributes
-  attributes?: {
-    pace: number;
-    shooting: number;
-    passing: number;
-    dribbling: number;
-    defending: number;
-    physical: number;
-  };
 }
 
-interface Match {
+interface PlayerBooking {
   id: string;
-  title: string;
   date: string;
   startTime: string;
-  matchType: string;
-  location: string;
-  ground?: {
+  endTime: string;
+  duration: number;
+  totalCost: number;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
+  ground: {
     name: string;
     address: string;
   };
@@ -130,45 +122,17 @@ const getPositionTactics = (position: string = 'Midfielder') => {
 
 export default function PlayerDashboardHome() {
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [bookings, setBookings] = useState<PlayerBooking[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Attribute editing state
-  const [isEditingAttrs, setIsEditingAttrs] = useState(false);
-  const [savingAttrs, setSavingAttrs] = useState(false);
-  const [editableAttributes, setEditableAttributes] = useState({
-    pace: 75,
-    shooting: 70,
-    passing: 75,
-    dribbling: 80,
-    defending: 65,
-    physical: 70
-  });
-
   useEffect(() => {
-
     const fetchDashboardMetrics = async () => {
       try {
         const response = await apiClient.get('/api/player/dashboard');
         if (response.data.success) {
-          const prof = response.data.profile;
-          setProfile(prof);
-          setMatches(response.data.matches);
-
-          // Calculate initial dynamic attributes or fallback to profile data
-          if (prof) {
-            const winRate = prof.matchesPlayed > 0 ? (prof.wins / prof.matchesPlayed) * 100 : 50;
-            const goalsPerMatch = prof.matchesPlayed > 0 ? (prof.goals / prof.matchesPlayed) * 100 : 40;
-            
-            setEditableAttributes(prof.attributes || {
-              pace: Math.min(99, Math.max(50, Math.round(70 + (goalsPerMatch * 0.2)))),
-              shooting: Math.min(99, Math.max(50, Math.round(60 + (prof.goals * 3)))),
-              passing: Math.min(99, Math.max(50, Math.round(65 + (prof.assists * 4)))),
-              dribbling: Math.min(99, Math.max(50, Math.round(70 + (prof.rating * 2)))),
-              defending: Math.min(99, Math.max(50, Math.round(55 + (winRate * 0.3)))),
-              physical: Math.min(99, Math.max(50, Math.round(65 + (prof.matchesPlayed * 1.5)))),
-            });
-          }
+          setProfile(response.data.profile);
+          // Assuming API returns player's ground bookings (or fallback to bookings array)
+          setBookings(response.data.bookings || response.data.matches || []);
         }
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -182,25 +146,6 @@ export default function PlayerDashboardHome() {
     };
     fetchDashboardMetrics();
   }, []);
-
-  const handleSaveAttributes = async () => {
-    setSavingAttrs(true);
-    try {
-      // API call to persist custom attributes
-      await apiClient.put('/api/player/attributes', { attributes: editableAttributes });
-      if (profile) {
-        setProfile({ ...profile, attributes: editableAttributes });
-      }
-      setIsEditingAttrs(false);
-    } catch (err) {
-      console.error("Failed to save attributes", err);
-      // Optimistic update fallback
-      if (profile) setProfile({ ...profile, attributes: editableAttributes });
-      setIsEditingAttrs(false);
-    } finally {
-      setSavingAttrs(false);
-    }
-  };
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: "var(--bcolor)" }}>
@@ -262,17 +207,17 @@ export default function PlayerDashboardHome() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column: Upcoming Matches & Dynamic Training Drills */}
+        {/* Left Column: Player's Booked Futsal Arenas & Status */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Upcoming Matches */}
+          {/* Booked Grounds & Reservation Approval Status */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold uppercase tracking-wide text-slate-900 flex items-center">
               <span className="w-1.5 h-6 bg-emerald-500 rounded-full mr-3"></span>
-              Your Upcoming Games
+              Your Booked Arenas & Reservation Status
             </h2>
 
-            {matches?.length === 0 ? (
+            {bookings.length === 0 ? (
               <div 
                 className="rounded-2xl p-10 border text-center flex flex-col items-center justify-center shadow-sm"
                 style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
@@ -280,47 +225,98 @@ export default function PlayerDashboardHome() {
                 <div className="w-14 h-14 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center mb-3 text-slate-400">
                   <Calendar className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-slate-800 uppercase tracking-wide text-sm">No games scheduled</h3>
-                <p className="text-slate-500 text-xs mt-1">Join an available match from the global squad hub to lock in.</p>
+                <h3 className="font-bold text-slate-800 uppercase tracking-wide text-sm">No reservations found</h3>
+                <p className="text-slate-500 text-xs mt-1">Book an arena from the Futsal Grounds page to see your schedule and approval status here.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {matches?.map((match) => (
-                  <div 
-                    key={match.id} 
-                    className="p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 shadow-sm hover:shadow-md group"
-                    style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
-                  >
-                    <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
-                          {new Date(match.date).toLocaleString('default', { month: 'short' })}
-                        </span>
-                        <span className="text-lg font-black leading-none text-slate-900 mt-0.5">
-                          {new Date(match.date).getDate()}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors text-sm sm:text-base uppercase tracking-tight">
-                          {match.title}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 font-medium mt-1">
-                          <span className="flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                            {match.ground?.name || match.location}
+                {bookings.map((booking) => {
+                  const bookingDate = new Date(booking.date);
+                  const startTime = booking.startTime 
+                    ? new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                    : 'TBD';
+
+                  return (
+                    <div 
+                      key={booking.id} 
+                      className="p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 shadow-sm hover:shadow-md group"
+                      style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
+                    >
+                      <div className="flex items-start space-x-4">
+                        {/* Calendar Date Block */}
+                        <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                            {bookingDate.toLocaleString('default', { month: 'short' })}
                           </span>
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            {match.startTime}
+                          <span className="text-lg font-black leading-none text-slate-900 mt-0.5">
+                            {bookingDate.getDate()}
                           </span>
                         </div>
+
+                        {/* Booking Info */}
+                        <div>
+                          <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors text-sm sm:text-base uppercase tracking-tight">
+                            {booking.ground?.name || 'Futsal Arena Reservation'}
+                          </h3>
+                          
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 font-medium mt-1">
+                            {booking.ground?.address && (
+                              <span className="flex items-center gap-1.5">
+                                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                {booking.ground.address}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              {startTime} ({booking.duration || 60} mins)
+                            </span>
+                            <span className="flex items-center gap-1 text-emerald-600 font-extrabold">
+                              <Coins className="w-3.5 h-3.5 text-emerald-600" />
+                              Rs. {booking.totalCost}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Approval Status Badge from Vendor */}
+                      <div className="self-start sm:self-auto shrink-0">
+                        <span 
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border shadow-2xs ${
+                            booking.status === 'PENDING' ? 'bg-amber-50 border-amber-200 text-amber-700' :
+                            booking.status === 'APPROVED' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' :
+                            booking.status === 'COMPLETED' ? 'bg-blue-50 border-blue-200 text-blue-700' :
+                            'bg-red-50 border-red-200 text-red-700'
+                          }`}
+                        >
+                          {booking.status === 'PENDING' && (
+                            <>
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                              Pending Vendor Review
+                            </>
+                          )}
+                          {booking.status === 'APPROVED' && (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              Approved by Owner
+                            </>
+                          )}
+                          {booking.status === 'COMPLETED' && (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                              Match Completed
+                            </>
+                          )}
+                          {booking.status === 'REJECTED' && (
+                            <>
+                              <XCircle className="w-3.5 h-3.5 text-red-600" />
+                              Booking Declined
+                            </>
+                          )}
+                        </span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 uppercase tracking-wider self-start sm:self-auto">
-                      {match.matchType}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -359,10 +355,8 @@ export default function PlayerDashboardHome() {
 
         </div>
 
-        {/* Right Sidebar Column: Pitch Diagram + Fully Dynamic Performance Attributes */}
+        {/* Right Sidebar Column: Pitch Diagram */}
         <div className="space-y-6">
-          
-          {/* Pitch Heatmap / Position Diagram */}
           <div 
             className="p-6 rounded-2xl border shadow-sm space-y-4"
             style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
@@ -394,86 +388,9 @@ export default function PlayerDashboardHome() {
               <span className="text-sm font-extrabold text-slate-900">{tactics.roleTitle}</span>
             </div>
           </div>
-
-          {/* DYNAMIC PLAYER ATTRIBUTES PANEL WITH EDITING CAPABILITY */}
-          {/* <div 
-            className="p-6 rounded-2xl border shadow-sm"
-            style={{ backgroundColor: "var(--ccolor)", borderColor: "var(--border-color)" }}
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
-              <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
-                <Gamepad2 className="w-4 h-4 text-emerald-600" /> Performance Attributes
-              </h3>
-              
-              {!isEditingAttrs ? (
-                <button 
-                  onClick={() => setIsEditingAttrs(true)}
-                  className="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1 hover:underline"
-                >
-                  <Edit3 className="w-3.5 h-3.5" /> Edit
-                </button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={handleSaveAttributes}
-                    disabled={savingAttrs}
-                    className="text-xs bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-md flex items-center gap-1 hover:bg-emerald-700 transition-colors"
-                  >
-                    {savingAttrs ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
-                  </button>
-                  <button 
-                    onClick={() => setIsEditingAttrs(false)}
-                    className="text-xs text-slate-500 hover:text-slate-700 p-1"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-          
-            <div className="space-y-4">
-              {(Object.keys(editableAttributes) as Array<keyof typeof editableAttributes>).map((attrKey) => {
-                const val = editableAttributes[attrKey];
-                const formattedName = attrKey.charAt(0).toUpperCase() + attrKey.slice(1);
-
-                return (
-                  <div key={attrKey}>
-                    <div className="flex justify-between text-xs uppercase tracking-wider font-bold mb-1.5">
-                      <span className="text-slate-500">{formattedName}</span>
-                      <span className="text-emerald-600">{val}%</span>
-                    </div>
-
-                    {isEditingAttrs ? (
-                      <input 
-                        type="range"
-                        min="30"
-                        max="99"
-                        value={val}
-                        onChange={(e) => setEditableAttributes({
-                          ...editableAttributes,
-                          [attrKey]: parseInt(e.target.value) || 0
-                        })}
-                        className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-full bg-slate-100 border border-slate-200 rounded-full h-2">
-                        <div 
-                          className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${val}%` }}
-                        ></div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div> */}
-
-          </div>
-
         </div>
 
       </div>
-    
+    </div>
   );
 }

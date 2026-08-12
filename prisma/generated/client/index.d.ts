@@ -5984,6 +5984,8 @@ export namespace Prisma {
     longitude: number | null
     pricePerHour: number | null
     amenities: string | null
+    paymentQrUrl: string | null
+    paymentQrPublicId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5998,6 +6000,8 @@ export namespace Prisma {
     longitude: number | null
     pricePerHour: number | null
     amenities: string | null
+    paymentQrUrl: string | null
+    paymentQrPublicId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6012,6 +6016,8 @@ export namespace Prisma {
     longitude: number
     pricePerHour: number
     amenities: number
+    paymentQrUrl: number
+    paymentQrPublicId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6040,6 +6046,8 @@ export namespace Prisma {
     longitude?: true
     pricePerHour?: true
     amenities?: true
+    paymentQrUrl?: true
+    paymentQrPublicId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6054,6 +6062,8 @@ export namespace Prisma {
     longitude?: true
     pricePerHour?: true
     amenities?: true
+    paymentQrUrl?: true
+    paymentQrPublicId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6068,6 +6078,8 @@ export namespace Prisma {
     longitude?: true
     pricePerHour?: true
     amenities?: true
+    paymentQrUrl?: true
+    paymentQrPublicId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6169,6 +6181,8 @@ export namespace Prisma {
     longitude: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl: string | null
+    paymentQrPublicId: string | null
     createdAt: Date
     updatedAt: Date
     _count: GroundCountAggregateOutputType | null
@@ -6202,6 +6216,8 @@ export namespace Prisma {
     longitude?: boolean
     pricePerHour?: boolean
     amenities?: boolean
+    paymentQrUrl?: boolean
+    paymentQrPublicId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     owner?: boolean | OwnerProfileDefaultArgs<ExtArgs>
@@ -6224,11 +6240,13 @@ export namespace Prisma {
     longitude?: boolean
     pricePerHour?: boolean
     amenities?: boolean
+    paymentQrUrl?: boolean
+    paymentQrPublicId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type GroundOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "name" | "description" | "address" | "latitude" | "longitude" | "pricePerHour" | "amenities" | "createdAt" | "updatedAt", ExtArgs["result"]["ground"]>
+  export type GroundOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "name" | "description" | "address" | "latitude" | "longitude" | "pricePerHour" | "amenities" | "paymentQrUrl" | "paymentQrPublicId" | "createdAt" | "updatedAt", ExtArgs["result"]["ground"]>
   export type GroundInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | OwnerProfileDefaultArgs<ExtArgs>
     images?: boolean | Ground$imagesArgs<ExtArgs>
@@ -6257,6 +6275,8 @@ export namespace Prisma {
       longitude: number | null
       pricePerHour: number
       amenities: string
+      paymentQrUrl: string | null
+      paymentQrPublicId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["ground"]>
@@ -6642,6 +6662,8 @@ export namespace Prisma {
     readonly longitude: FieldRef<"Ground", 'Float'>
     readonly pricePerHour: FieldRef<"Ground", 'Float'>
     readonly amenities: FieldRef<"Ground", 'String'>
+    readonly paymentQrUrl: FieldRef<"Ground", 'String'>
+    readonly paymentQrPublicId: FieldRef<"Ground", 'String'>
     readonly createdAt: FieldRef<"Ground", 'DateTime'>
     readonly updatedAt: FieldRef<"Ground", 'DateTime'>
   }
@@ -11119,6 +11141,10 @@ export namespace Prisma {
     endTime: Date | null
     duration: number | null
     totalCost: number | null
+    paymentReceiptUrl: string | null
+    paymentReceiptPublicId: string | null
+    paymentSubmittedAt: Date | null
+    paymentVerifiedAt: Date | null
     status: $Enums.BookingStatus | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -11133,6 +11159,10 @@ export namespace Prisma {
     endTime: Date | null
     duration: number | null
     totalCost: number | null
+    paymentReceiptUrl: string | null
+    paymentReceiptPublicId: string | null
+    paymentSubmittedAt: Date | null
+    paymentVerifiedAt: Date | null
     status: $Enums.BookingStatus | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -11147,6 +11177,10 @@ export namespace Prisma {
     endTime: number
     duration: number
     totalCost: number
+    paymentReceiptUrl: number
+    paymentReceiptPublicId: number
+    paymentSubmittedAt: number
+    paymentVerifiedAt: number
     status: number
     createdAt: number
     updatedAt: number
@@ -11173,6 +11207,10 @@ export namespace Prisma {
     endTime?: true
     duration?: true
     totalCost?: true
+    paymentReceiptUrl?: true
+    paymentReceiptPublicId?: true
+    paymentSubmittedAt?: true
+    paymentVerifiedAt?: true
     status?: true
     createdAt?: true
     updatedAt?: true
@@ -11187,6 +11225,10 @@ export namespace Prisma {
     endTime?: true
     duration?: true
     totalCost?: true
+    paymentReceiptUrl?: true
+    paymentReceiptPublicId?: true
+    paymentSubmittedAt?: true
+    paymentVerifiedAt?: true
     status?: true
     createdAt?: true
     updatedAt?: true
@@ -11201,6 +11243,10 @@ export namespace Prisma {
     endTime?: true
     duration?: true
     totalCost?: true
+    paymentReceiptUrl?: true
+    paymentReceiptPublicId?: true
+    paymentSubmittedAt?: true
+    paymentVerifiedAt?: true
     status?: true
     createdAt?: true
     updatedAt?: true
@@ -11302,6 +11348,10 @@ export namespace Prisma {
     endTime: Date
     duration: number
     totalCost: number
+    paymentReceiptUrl: string | null
+    paymentReceiptPublicId: string | null
+    paymentSubmittedAt: Date | null
+    paymentVerifiedAt: Date | null
     status: $Enums.BookingStatus
     createdAt: Date
     updatedAt: Date
@@ -11335,6 +11385,10 @@ export namespace Prisma {
     endTime?: boolean
     duration?: boolean
     totalCost?: boolean
+    paymentReceiptUrl?: boolean
+    paymentReceiptPublicId?: boolean
+    paymentSubmittedAt?: boolean
+    paymentVerifiedAt?: boolean
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11353,12 +11407,16 @@ export namespace Prisma {
     endTime?: boolean
     duration?: boolean
     totalCost?: boolean
+    paymentReceiptUrl?: boolean
+    paymentReceiptPublicId?: boolean
+    paymentSubmittedAt?: boolean
+    paymentVerifiedAt?: boolean
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BookingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groundId" | "date" | "startTime" | "endTime" | "duration" | "totalCost" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["booking"]>
+  export type BookingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groundId" | "date" | "startTime" | "endTime" | "duration" | "totalCost" | "paymentReceiptUrl" | "paymentReceiptPublicId" | "paymentSubmittedAt" | "paymentVerifiedAt" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["booking"]>
   export type BookingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     ground?: boolean | GroundDefaultArgs<ExtArgs>
@@ -11379,6 +11437,10 @@ export namespace Prisma {
       endTime: Date
       duration: number
       totalCost: number
+      paymentReceiptUrl: string | null
+      paymentReceiptPublicId: string | null
+      paymentSubmittedAt: Date | null
+      paymentVerifiedAt: Date | null
       status: $Enums.BookingStatus
       createdAt: Date
       updatedAt: Date
@@ -11761,6 +11823,10 @@ export namespace Prisma {
     readonly endTime: FieldRef<"Booking", 'DateTime'>
     readonly duration: FieldRef<"Booking", 'Int'>
     readonly totalCost: FieldRef<"Booking", 'Float'>
+    readonly paymentReceiptUrl: FieldRef<"Booking", 'String'>
+    readonly paymentReceiptPublicId: FieldRef<"Booking", 'String'>
+    readonly paymentSubmittedAt: FieldRef<"Booking", 'DateTime'>
+    readonly paymentVerifiedAt: FieldRef<"Booking", 'DateTime'>
     readonly status: FieldRef<"Booking", 'BookingStatus'>
     readonly createdAt: FieldRef<"Booking", 'DateTime'>
     readonly updatedAt: FieldRef<"Booking", 'DateTime'>
@@ -20010,6 +20076,8 @@ export namespace Prisma {
     longitude: 'longitude',
     pricePerHour: 'pricePerHour',
     amenities: 'amenities',
+    paymentQrUrl: 'paymentQrUrl',
+    paymentQrPublicId: 'paymentQrPublicId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -20077,6 +20145,10 @@ export namespace Prisma {
     endTime: 'endTime',
     duration: 'duration',
     totalCost: 'totalCost',
+    paymentReceiptUrl: 'paymentReceiptUrl',
+    paymentReceiptPublicId: 'paymentReceiptPublicId',
+    paymentSubmittedAt: 'paymentSubmittedAt',
+    paymentVerifiedAt: 'paymentVerifiedAt',
     status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -20241,7 +20313,9 @@ export namespace Prisma {
     name: 'name',
     description: 'description',
     address: 'address',
-    amenities: 'amenities'
+    amenities: 'amenities',
+    paymentQrUrl: 'paymentQrUrl',
+    paymentQrPublicId: 'paymentQrPublicId'
   };
 
   export type GroundOrderByRelevanceFieldEnum = (typeof GroundOrderByRelevanceFieldEnum)[keyof typeof GroundOrderByRelevanceFieldEnum]
@@ -20291,7 +20365,9 @@ export namespace Prisma {
   export const BookingOrderByRelevanceFieldEnum: {
     id: 'id',
     userId: 'userId',
-    groundId: 'groundId'
+    groundId: 'groundId',
+    paymentReceiptUrl: 'paymentReceiptUrl',
+    paymentReceiptPublicId: 'paymentReceiptPublicId'
   };
 
   export type BookingOrderByRelevanceFieldEnum = (typeof BookingOrderByRelevanceFieldEnum)[keyof typeof BookingOrderByRelevanceFieldEnum]
@@ -20755,6 +20831,8 @@ export namespace Prisma {
     longitude?: FloatNullableFilter<"Ground"> | number | null
     pricePerHour?: FloatFilter<"Ground"> | number
     amenities?: StringFilter<"Ground"> | string
+    paymentQrUrl?: StringNullableFilter<"Ground"> | string | null
+    paymentQrPublicId?: StringNullableFilter<"Ground"> | string | null
     createdAt?: DateTimeFilter<"Ground"> | Date | string
     updatedAt?: DateTimeFilter<"Ground"> | Date | string
     owner?: XOR<OwnerProfileScalarRelationFilter, OwnerProfileWhereInput>
@@ -20774,6 +20852,8 @@ export namespace Prisma {
     longitude?: SortOrderInput | SortOrder
     pricePerHour?: SortOrder
     amenities?: SortOrder
+    paymentQrUrl?: SortOrderInput | SortOrder
+    paymentQrPublicId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     owner?: OwnerProfileOrderByWithRelationInput
@@ -20797,6 +20877,8 @@ export namespace Prisma {
     longitude?: FloatNullableFilter<"Ground"> | number | null
     pricePerHour?: FloatFilter<"Ground"> | number
     amenities?: StringFilter<"Ground"> | string
+    paymentQrUrl?: StringNullableFilter<"Ground"> | string | null
+    paymentQrPublicId?: StringNullableFilter<"Ground"> | string | null
     createdAt?: DateTimeFilter<"Ground"> | Date | string
     updatedAt?: DateTimeFilter<"Ground"> | Date | string
     owner?: XOR<OwnerProfileScalarRelationFilter, OwnerProfileWhereInput>
@@ -20816,6 +20898,8 @@ export namespace Prisma {
     longitude?: SortOrderInput | SortOrder
     pricePerHour?: SortOrder
     amenities?: SortOrder
+    paymentQrUrl?: SortOrderInput | SortOrder
+    paymentQrPublicId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: GroundCountOrderByAggregateInput
@@ -20838,6 +20922,8 @@ export namespace Prisma {
     longitude?: FloatNullableWithAggregatesFilter<"Ground"> | number | null
     pricePerHour?: FloatWithAggregatesFilter<"Ground"> | number
     amenities?: StringWithAggregatesFilter<"Ground"> | string
+    paymentQrUrl?: StringNullableWithAggregatesFilter<"Ground"> | string | null
+    paymentQrPublicId?: StringNullableWithAggregatesFilter<"Ground"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Ground"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Ground"> | Date | string
   }
@@ -21138,6 +21224,10 @@ export namespace Prisma {
     endTime?: DateTimeFilter<"Booking"> | Date | string
     duration?: IntFilter<"Booking"> | number
     totalCost?: FloatFilter<"Booking"> | number
+    paymentReceiptUrl?: StringNullableFilter<"Booking"> | string | null
+    paymentReceiptPublicId?: StringNullableFilter<"Booking"> | string | null
+    paymentSubmittedAt?: DateTimeNullableFilter<"Booking"> | Date | string | null
+    paymentVerifiedAt?: DateTimeNullableFilter<"Booking"> | Date | string | null
     status?: EnumBookingStatusFilter<"Booking"> | $Enums.BookingStatus
     createdAt?: DateTimeFilter<"Booking"> | Date | string
     updatedAt?: DateTimeFilter<"Booking"> | Date | string
@@ -21154,6 +21244,10 @@ export namespace Prisma {
     endTime?: SortOrder
     duration?: SortOrder
     totalCost?: SortOrder
+    paymentReceiptUrl?: SortOrderInput | SortOrder
+    paymentReceiptPublicId?: SortOrderInput | SortOrder
+    paymentSubmittedAt?: SortOrderInput | SortOrder
+    paymentVerifiedAt?: SortOrderInput | SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21174,6 +21268,10 @@ export namespace Prisma {
     endTime?: DateTimeFilter<"Booking"> | Date | string
     duration?: IntFilter<"Booking"> | number
     totalCost?: FloatFilter<"Booking"> | number
+    paymentReceiptUrl?: StringNullableFilter<"Booking"> | string | null
+    paymentReceiptPublicId?: StringNullableFilter<"Booking"> | string | null
+    paymentSubmittedAt?: DateTimeNullableFilter<"Booking"> | Date | string | null
+    paymentVerifiedAt?: DateTimeNullableFilter<"Booking"> | Date | string | null
     status?: EnumBookingStatusFilter<"Booking"> | $Enums.BookingStatus
     createdAt?: DateTimeFilter<"Booking"> | Date | string
     updatedAt?: DateTimeFilter<"Booking"> | Date | string
@@ -21190,6 +21288,10 @@ export namespace Prisma {
     endTime?: SortOrder
     duration?: SortOrder
     totalCost?: SortOrder
+    paymentReceiptUrl?: SortOrderInput | SortOrder
+    paymentReceiptPublicId?: SortOrderInput | SortOrder
+    paymentSubmittedAt?: SortOrderInput | SortOrder
+    paymentVerifiedAt?: SortOrderInput | SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21212,6 +21314,10 @@ export namespace Prisma {
     endTime?: DateTimeWithAggregatesFilter<"Booking"> | Date | string
     duration?: IntWithAggregatesFilter<"Booking"> | number
     totalCost?: FloatWithAggregatesFilter<"Booking"> | number
+    paymentReceiptUrl?: StringNullableWithAggregatesFilter<"Booking"> | string | null
+    paymentReceiptPublicId?: StringNullableWithAggregatesFilter<"Booking"> | string | null
+    paymentSubmittedAt?: DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+    paymentVerifiedAt?: DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
     status?: EnumBookingStatusWithAggregatesFilter<"Booking"> | $Enums.BookingStatus
     createdAt?: DateTimeWithAggregatesFilter<"Booking"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Booking"> | Date | string
@@ -22070,6 +22176,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: OwnerProfileCreateNestedOneWithoutGroundsInput
@@ -22089,6 +22197,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     images?: GroundImageUncheckedCreateNestedManyWithoutGroundInput
@@ -22106,6 +22216,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: OwnerProfileUpdateOneRequiredWithoutGroundsNestedInput
@@ -22125,6 +22237,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: GroundImageUncheckedUpdateManyWithoutGroundNestedInput
@@ -22143,6 +22257,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22156,6 +22272,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22170,6 +22288,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22463,6 +22583,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22479,6 +22603,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22491,6 +22619,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22507,6 +22639,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22521,6 +22657,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22533,6 +22673,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22547,6 +22691,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23576,6 +23724,8 @@ export namespace Prisma {
     longitude?: SortOrder
     pricePerHour?: SortOrder
     amenities?: SortOrder
+    paymentQrUrl?: SortOrder
+    paymentQrPublicId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -23596,6 +23746,8 @@ export namespace Prisma {
     longitude?: SortOrder
     pricePerHour?: SortOrder
     amenities?: SortOrder
+    paymentQrUrl?: SortOrder
+    paymentQrPublicId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -23610,6 +23762,8 @@ export namespace Prisma {
     longitude?: SortOrder
     pricePerHour?: SortOrder
     amenities?: SortOrder
+    paymentQrUrl?: SortOrder
+    paymentQrPublicId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -23859,6 +24013,17 @@ export namespace Prisma {
     _max?: NestedEnumRequestStatusFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type EnumBookingStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.BookingStatus | EnumBookingStatusFieldRefInput<$PrismaModel>
     in?: $Enums.BookingStatus[]
@@ -23881,6 +24046,10 @@ export namespace Prisma {
     endTime?: SortOrder
     duration?: SortOrder
     totalCost?: SortOrder
+    paymentReceiptUrl?: SortOrder
+    paymentReceiptPublicId?: SortOrder
+    paymentSubmittedAt?: SortOrder
+    paymentVerifiedAt?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23900,6 +24069,10 @@ export namespace Prisma {
     endTime?: SortOrder
     duration?: SortOrder
     totalCost?: SortOrder
+    paymentReceiptUrl?: SortOrder
+    paymentReceiptPublicId?: SortOrder
+    paymentSubmittedAt?: SortOrder
+    paymentVerifiedAt?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23914,6 +24087,10 @@ export namespace Prisma {
     endTime?: SortOrder
     duration?: SortOrder
     totalCost?: SortOrder
+    paymentReceiptUrl?: SortOrder
+    paymentReceiptPublicId?: SortOrder
+    paymentSubmittedAt?: SortOrder
+    paymentVerifiedAt?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23922,6 +24099,20 @@ export namespace Prisma {
   export type BookingSumOrderByAggregateInput = {
     duration?: SortOrder
     totalCost?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EnumBookingStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -25259,6 +25450,10 @@ export namespace Prisma {
     connect?: GroundWhereUniqueInput
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type EnumBookingStatusFieldUpdateOperationsInput = {
     set?: $Enums.BookingStatus
   }
@@ -25773,11 +25968,36 @@ export namespace Prisma {
     _max?: NestedEnumRequestStatusFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumBookingStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.BookingStatus | EnumBookingStatusFieldRefInput<$PrismaModel>
     in?: $Enums.BookingStatus[]
     notIn?: $Enums.BookingStatus[]
     not?: NestedEnumBookingStatusFilter<$PrismaModel> | $Enums.BookingStatus
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumBookingStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -25923,6 +26143,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25937,6 +26161,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26207,6 +26435,10 @@ export namespace Prisma {
     endTime?: DateTimeFilter<"Booking"> | Date | string
     duration?: IntFilter<"Booking"> | number
     totalCost?: FloatFilter<"Booking"> | number
+    paymentReceiptUrl?: StringNullableFilter<"Booking"> | string | null
+    paymentReceiptPublicId?: StringNullableFilter<"Booking"> | string | null
+    paymentSubmittedAt?: DateTimeNullableFilter<"Booking"> | Date | string | null
+    paymentVerifiedAt?: DateTimeNullableFilter<"Booking"> | Date | string | null
     status?: EnumBookingStatusFilter<"Booking"> | $Enums.BookingStatus
     createdAt?: DateTimeFilter<"Booking"> | Date | string
     updatedAt?: DateTimeFilter<"Booking"> | Date | string
@@ -26615,6 +26847,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     images?: GroundImageCreateNestedManyWithoutGroundInput
@@ -26632,6 +26866,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     images?: GroundImageUncheckedCreateNestedManyWithoutGroundInput
@@ -26726,6 +26962,8 @@ export namespace Prisma {
     longitude?: FloatNullableFilter<"Ground"> | number | null
     pricePerHour?: FloatFilter<"Ground"> | number
     amenities?: StringFilter<"Ground"> | string
+    paymentQrUrl?: StringNullableFilter<"Ground"> | string | null
+    paymentQrPublicId?: StringNullableFilter<"Ground"> | string | null
     createdAt?: DateTimeFilter<"Ground"> | Date | string
     updatedAt?: DateTimeFilter<"Ground"> | Date | string
   }
@@ -26784,6 +27022,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26798,6 +27040,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27006,6 +27252,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: OwnerProfileCreateNestedOneWithoutGroundsInput
@@ -27024,6 +27272,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bookings?: BookingUncheckedCreateNestedManyWithoutGroundInput
@@ -27056,6 +27306,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: OwnerProfileUpdateOneRequiredWithoutGroundsNestedInput
@@ -27074,6 +27326,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bookings?: BookingUncheckedUpdateManyWithoutGroundNestedInput
@@ -27131,6 +27385,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: OwnerProfileCreateNestedOneWithoutGroundsInput
@@ -27149,6 +27405,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     images?: GroundImageUncheckedCreateNestedManyWithoutGroundInput
@@ -27314,6 +27572,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: OwnerProfileUpdateOneRequiredWithoutGroundsNestedInput
@@ -27332,6 +27592,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: GroundImageUncheckedUpdateManyWithoutGroundNestedInput
@@ -27873,6 +28135,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: OwnerProfileCreateNestedOneWithoutGroundsInput
@@ -27891,6 +28155,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     images?: GroundImageUncheckedCreateNestedManyWithoutGroundInput
@@ -27970,6 +28236,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: OwnerProfileUpdateOneRequiredWithoutGroundsNestedInput
@@ -27988,6 +28256,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: GroundImageUncheckedUpdateManyWithoutGroundNestedInput
@@ -28715,6 +28985,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: OwnerProfileCreateNestedOneWithoutGroundsInput
@@ -28733,6 +29005,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     images?: GroundImageUncheckedCreateNestedManyWithoutGroundInput
@@ -28812,6 +29086,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: OwnerProfileUpdateOneRequiredWithoutGroundsNestedInput
@@ -28830,6 +29106,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: GroundImageUncheckedUpdateManyWithoutGroundNestedInput
@@ -28950,6 +29228,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -29053,6 +29335,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29067,6 +29353,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29080,6 +29370,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29274,6 +29568,8 @@ export namespace Prisma {
     longitude?: number | null
     pricePerHour: number
     amenities: string
+    paymentQrUrl?: string | null
+    paymentQrPublicId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -29287,6 +29583,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: GroundImageUpdateManyWithoutGroundNestedInput
@@ -29304,6 +29602,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: GroundImageUncheckedUpdateManyWithoutGroundNestedInput
@@ -29321,6 +29621,8 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     pricePerHour?: FloatFieldUpdateOperationsInput | number
     amenities?: StringFieldUpdateOperationsInput | string
+    paymentQrUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentQrPublicId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29338,6 +29640,10 @@ export namespace Prisma {
     endTime: Date | string
     duration: number
     totalCost: number
+    paymentReceiptUrl?: string | null
+    paymentReceiptPublicId?: string | null
+    paymentSubmittedAt?: Date | string | null
+    paymentVerifiedAt?: Date | string | null
     status?: $Enums.BookingStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -29390,6 +29696,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29404,6 +29714,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29417,6 +29731,10 @@ export namespace Prisma {
     endTime?: DateTimeFieldUpdateOperationsInput | Date | string
     duration?: IntFieldUpdateOperationsInput | number
     totalCost?: FloatFieldUpdateOperationsInput | number
+    paymentReceiptUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReceiptPublicId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentSubmittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
