@@ -12,8 +12,13 @@ import {
   X, 
   Target, 
   Flame, 
-  User 
+  User,
+  CheckCircle2,
+  XCircle,
+  MessageSquare
 } from 'lucide-react';
+
+export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
 interface RequestPlayer {
   id: string;
@@ -30,6 +35,8 @@ interface RequestPlayer {
 interface JoinRequest {
   id: string;
   createdAt?: string;
+  status?: RequestStatus;
+  statusNote?: string;
   match: { id: string; title: string; date: string; location?: string };
   player: RequestPlayer;
 }
@@ -44,7 +51,12 @@ export default function MatchRequestsPage() {
       try {
         const res = await apiClient.get('/api/player/matches/requests');
         if (res.data.success) {
-          setRequests(res.data.requests);
+          // Normalize default status to PENDING if undefined
+          const formattedRequests = res.data.requests.map((req: JoinRequest) => ({
+            ...req,
+            status: req.status || 'PENDING',
+          }));
+          setRequests(formattedRequests);
         }
       } catch (err) {
         console.error('Failed to load requests', err);
@@ -60,7 +72,22 @@ export default function MatchRequestsPage() {
     try {
       const res = await apiClient.put('/api/player/matches/requests', { requestId, action });
       if (res.data.success) {
-        setRequests(prev => prev.filter(req => req.id !== requestId));
+        const newStatus: RequestStatus = action === 'APPROVE' ? 'ACCEPTED' : 'REJECTED';
+        const defaultNote = action === 'APPROVE' 
+          ? 'You accepted this player. They have been added to the match roster.'
+          : 'You rejected this player application.';
+
+        setRequests(prev =>
+          prev.map(req =>
+            req.id === requestId
+              ? {
+                  ...req,
+                  status: newStatus,
+                  statusNote: res.data.message || defaultNote,
+                }
+              : req
+          )
+        );
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -78,6 +105,8 @@ export default function MatchRequestsPage() {
       .join('')
       .toUpperCase()
       .substring(0, 2);
+
+  const pendingRequestsCount = requests.filter(r => r.status === 'PENDING').length;
 
   if (loading) {
     return (
@@ -111,7 +140,7 @@ export default function MatchRequestsPage() {
         {/* Pending Counter */}
         <div className="self-start sm:self-auto bg-emerald-50 border border-emerald-200 text-emerald-800 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>{requests.length} Pending {requests.length === 1 ? 'Request' : 'Requests'}</span>
+          <span>{pendingRequestsCount} Pending {pendingRequestsCount === 1 ? 'Request' : 'Requests'}</span>
         </div>
       </div>
 
@@ -125,28 +154,51 @@ export default function MatchRequestsPage() {
             <Inbox className="w-6 h-6" />
           </div>
           <p className="text-sm uppercase tracking-wider font-bold text-slate-600">
-            No pending join requests in your inbox right now.
+            No join requests found in your inbox.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {requests.map((req) => {
             const isProcessing = processingId === req.id;
+            const isPending = req.status === 'PENDING';
+            const isAccepted = req.status === 'ACCEPTED';
+            const isRejected = req.status === 'REJECTED';
+
             return (
               <div 
                 key={req.id} 
-                className="p-6 rounded-2xl border bg-white shadow-xs flex flex-col justify-between hover:shadow-md transition-all duration-200"
-                style={{ borderColor: "var(--border-color)" }}
+                className={`p-6 rounded-2xl border transition-all duration-200 flex flex-col justify-between shadow-xs hover:shadow-md ${
+                  isAccepted
+                    ? 'bg-emerald-50/20 border-emerald-200'
+                    : isRejected
+                    ? 'bg-rose-50/20 border-rose-200'
+                    : 'bg-white border-slate-200'
+                }`}
               >
                 <div>
-                  {/* Match Info Banner */}
+                  {/* Match Info & Status Badge */}
                   <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full uppercase tracking-wider">
                       <Calendar className="w-3 h-3 text-emerald-600" /> Match: {req.match.title}
                     </span>
-                    {req.createdAt && (
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        {new Date(req.createdAt).toLocaleDateString()}
+
+                    {/* Dynamic Status Badges */}
+                    {isPending && (
+                      <span className="text-[10px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        Pending
+                      </span>
+                    )}
+
+                    {isAccepted && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Accepted
+                      </span>
+                    )}
+
+                    {isRejected && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black text-rose-800 bg-rose-100 border border-rose-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        <XCircle className="w-3 h-3 text-rose-600" /> Rejected
                       </span>
                     )}
                   </div>
@@ -191,30 +243,66 @@ export default function MatchRequestsPage() {
                   </div>
                 </div>
 
-                {/* Direct Action Buttons */}
-                <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
-                  <button 
-                    disabled={isProcessing}
-                    onClick={() => handleProcessRequest(req.id, 'APPROVE')}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition-colors text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <UserCheck className="w-4 h-4" /> Approve
-                      </>
-                    )}
-                  </button>
+                {/* Conditional Action or Result Card Section */}
+                {isPending ? (
+                  /* Action Buttons when Request is Pending */
+                  <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
+                    <button 
+                      disabled={isProcessing}
+                      onClick={() => handleProcessRequest(req.id, 'APPROVE')}
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition-colors text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <UserCheck className="w-4 h-4" /> Approve
+                        </>
+                      )}
+                    </button>
 
-                  <button 
-                    disabled={isProcessing}
-                    onClick={() => handleProcessRequest(req.id, 'REJECT')}
-                    className="flex-1 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-600 font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
-                  >
-                    <X className="w-4 h-4" /> Dismiss
-                  </button>
-                </div>
+                    <button 
+                      disabled={isProcessing}
+                      onClick={() => handleProcessRequest(req.id, 'REJECT')}
+                      className="flex-1 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-600 font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                    >
+                      <X className="w-4 h-4" /> Dismiss
+                    </button>
+                  </div>
+                ) : (
+                  /* Result Card when Request is Accepted or Rejected */
+                  <div className="mt-6 pt-4 border-t border-slate-200/60">
+                    <div 
+                      className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                        isAccepted 
+                          ? 'bg-emerald-50 border-emerald-200/80 text-emerald-900' 
+                          : 'bg-rose-50 border-rose-200/80 text-rose-900'
+                      }`}
+                    >
+                      {isAccepted ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                      )}
+
+                      <div className="flex-1 text-xs">
+                        <div className="flex items-center justify-between font-black uppercase tracking-wider mb-0.5">
+                          <span>{isAccepted ? 'Request Accepted' : 'Request Declined'}</span>
+                          <span className="text-[10px] font-bold opacity-75">
+                            {req.createdAt ? new Date(req.createdAt).toLocaleDateString() : 'Just now'}
+                          </span>
+                        </div>
+                        <p className="font-medium opacity-90 leading-relaxed">
+                          {req.statusNote || (
+                            isAccepted
+                              ? 'This player has been accepted into your match line-up.'
+                              : 'This player application was declined.'
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
