@@ -75,6 +75,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'End time must be strictly after start time' }, { status: 400 });
     }
 
+    // --- Exclusive Slot Overlap Check ---
+    const bookingDate = new Date(date);
+    const existingOverlap = await prisma.booking.findFirst({
+      where: {
+        groundId,
+        status: { not: 'REJECTED' },
+        date: bookingDate,
+        OR: [
+          {
+            startTime: { lt: end },
+            endTime: { gt: start },
+          },
+        ],
+      },
+    });
+
+    if (existingOverlap) {
+      return NextResponse.json(
+        { success: false, message: 'This time slot is already booked or pending verification.' },
+        { status: 409 }
+      );
+    }
+
     const totalCost = (durationMinutes / 60) * ground.pricePerHour;
 
     // Upload receipt image to Cloudinary
@@ -84,7 +107,7 @@ export async function POST(request: Request) {
       data: {
         userId,
         groundId,
-        date: new Date(date),
+        date: bookingDate,
         startTime: start,
         endTime: end,
         duration: durationMinutes,
@@ -96,7 +119,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, booking, message: 'Booking request sent!' }, { status: 201 });
+    return NextResponse.json({ success: true, booking, message: 'Booking request submitted successfully!' }, { status: 201 });
   } catch (error: unknown) {
     console.error('[BOOKING_ERROR]', error);
     return NextResponse.json({ success: false, message: 'Failed to create booking' }, { status: 500 });

@@ -168,7 +168,7 @@ export default function OwnerDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <button onClick={() => router.push("/owner")} className="p-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -179,7 +179,7 @@ export default function OwnerDashboard() {
               {isAddModalOpen ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {isAddModalOpen ? "Close Form" : "Add Ground"}
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
