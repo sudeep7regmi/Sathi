@@ -119,6 +119,41 @@ export default function MatchHubPage() {
     };
   }, [socket]);
 
+  // Safe time-only formatter (e.g., "14:30" or "14:30:00" -> "2:30 PM")
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return null;
+    
+    // If it's already a full ISO date string, extract time or parse
+    if (timeStr.includes("T")) {
+      const parsedDate = new Date(timeStr);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: font12HourFormat(),
+        });
+      }
+    }
+
+    // Split "HH:MM" or "HH:MM:SS"
+    const [hoursStr, minutesStr] = timeStr.split(":");
+    const hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+
+    if (isNaN(hours) || isNaN(minutes)) return timeStr;
+
+    const dummyDate = new Date();
+    dummyDate.setHours(hours, minutes, 0, 0);
+
+    return dummyDate.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: font12HourFormat(),
+    });
+  };
+
+  const font12HourFormat = () => true;
+
   const handleScoreUpdate = async (
     matchId: string,
     team: "HOME" | "AWAY",
@@ -560,6 +595,9 @@ export default function MatchHubPage() {
               const homeScore = m.liveScore?.homeScore || 0;
               const awayScore = m.liveScore?.awayScore || 0;
 
+              const formattedStart = formatTime(m.startTime);
+              const formattedEnd = formatTime(m.endTime);
+
               return (
                 <div
                   key={m.id}
@@ -593,11 +631,13 @@ export default function MatchHubPage() {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-semibold text-slate-600">
+                    {/* Venue Location, Date, and Clean Start/End Time */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-semibold text-slate-600">
                       <p className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                         <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span className="line-clamp-1">{m.location}</span>
                       </p>
+
                       <p className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                         <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>
@@ -606,6 +646,15 @@ export default function MatchHubPage() {
                             day: "numeric",
                             year: "numeric",
                           })}
+                        </span>
+                      </p>
+
+                      <p className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                        <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>
+                          {formattedStart && formattedEnd
+                            ? `${formattedStart} - ${formattedEnd}`
+                            : formattedStart || formattedEnd || "TBD"}
                         </span>
                       </p>
                     </div>

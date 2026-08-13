@@ -40,7 +40,8 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
           setUserName(response.data.profile.fullName);
         }
       } catch (err: unknown) {
-        if (axios.isAxiosError(err)) console.warn("Could not populate header profile.");
+        if (axios.isAxiosError(err))
+          console.warn("Could not populate header profile.");
       }
     };
     fetchHeaderProfile();
@@ -88,14 +89,14 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
   const navLinks = [
     { name: "Dashboard Overview", path: "/player", icon: LayoutDashboard },
     { name: "Matchmaking Hub", path: "/player/matches", icon: Flame },
-    { name: "Incoming Requests", path: "/player/requests", icon: Inbox },
+    { name: "Requests", path: "/player/requests", icon: Inbox },
     { name: "Book Futsal Grounds", path: "/player/grounds", icon: Layers },
-    { name: "Team Messenger", path: "/player/chat", icon: MessageSquare },
+    { name: "Messenger", path: "/player/chat", icon: MessageSquare },
   ];
 
   return (
     <SocketProvider>
-      <div 
+      <div
         className="min-h-screen flex antialiased"
         style={{ backgroundColor: "var(--bcolor)", color: "var(--tcolor)" }}
       >
@@ -115,13 +116,13 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
               ? "translate-x-0"
               : "-translate-x-full md:translate-x-0"
           } md:sticky top-0 h-screen`}
-          style={{ 
-            backgroundColor: "var(--ccolor)", 
-            borderColor: "var(--border-color)" 
+          style={{
+            backgroundColor: "var(--ccolor)",
+            borderColor: "var(--border-color)",
           }}
         >
           {/* Sidebar Header branding */}
-          <div 
+          <div
             className="flex items-center justify-between p-6 border-b"
             style={{ borderColor: "var(--border-color)" }}
           >
@@ -175,7 +176,7 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
           </nav>
 
           {/* Sidebar Footer Container */}
-          <div 
+          <div
             className="p-4 border-t"
             style={{ borderColor: "var(--border-color)" }}
           >
@@ -192,11 +193,11 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
         {/* MAIN DISPLAY PORTAL CONTAINER */}
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative">
           {/* Top Navbar Header bar */}
-          <header 
+          <header
             className="backdrop-blur-md sticky top-0 z-30 h-20 border-b flex items-center justify-between px-4 md:px-8 shadow-xs gap-4"
-            style={{ 
-              backgroundColor: "rgba(255, 255, 255, 0.85)", 
-              borderColor: "var(--border-color)" 
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.85)",
+              borderColor: "var(--border-color)",
             }}
           >
             {/* Left Section: Mobile Menu Button & Current Page Heading */}
