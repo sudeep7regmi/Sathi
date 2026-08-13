@@ -4,25 +4,64 @@ import { prisma } from "@/lib/prisma";
 import {
   registerPlayerSchema,
   registerOwnerSchema,
-} from "../../../lib/validation/auth.schema";
+} from "@/lib/validation/auth.schema";
+import { uploadImage } from "@/app/services/cloudinary.service";
+import { SkillLevel } from "@prisma/client";
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const formData = await request.formData();
+    const role = formData.get("role") as string;
 
-    // 1. Determine Role & Validate Payload
-    if (body.role === "PLAYER") {
-      const parsedData = registerPlayerSchema.safeParse(body);
+    // ============================================
+    // PLAYER REGISTRATION
+    // ============================================
+    if (role === "PLAYER") {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      const fullName = formData.get("fullName") as string;
+      const phoneNumber = formData.get("phoneNumber") as string;
+      const location = formData.get("location") as string;
+      const age = Number(formData.get("age"));
+      const preferredPosition = formData.get("preferredPosition") as string;
+      const skillLevel = formData.get("skillLevel") as string;
+      const bio = (formData.get("bio") as string) || "";
+      
+      // Accept file under "profileImage", "image", or "avatar"
+      const profileImage =
+        formData.get("profileImage") ||
+        formData.get("image") ||
+        formData.get("avatar");
+
+      // Validate Input Fields
+      const parsedData = registerPlayerSchema.safeParse({
+        role,
+        email,
+        password,
+        fullName,
+        phoneNumber,
+        location,
+        age,
+        preferredPosition,
+        skillLevel,
+        bio,
+      });
+
       if (!parsedData.success) {
         return NextResponse.json(
-          { success: false, errors: parsedData.error.flatten().fieldErrors },
+          {
+            success: false,
+            errors: parsedData.error.flatten().fieldErrors,
+          },
           { status: 400 }
         );
       }
 
-      // 2. Check for duplicate emails
+      // Check Existing Email
       const existingUser = await prisma.user.findUnique({
         where: { email: parsedData.data.email },
       });
+
       if (existingUser) {
         return NextResponse.json(
           { success: false, message: "Email is already registered" },
@@ -30,10 +69,54 @@ export async function POST(request: Request) {
         );
       }
 
-      // 3. Hash Password securely
+      // Validate Profile Image File
+      let imageFile: File | null = null;
+      if (profileImage instanceof File && profileImage.size > 0) {
+        if (!profileImage.type.startsWith("image/")) {
+          return NextResponse.json(
+            { success: false, message: "Profile image must be an image file" },
+            { status: 400 }
+          );
+        }
+        if (profileImage.size > 5 * 1024 * 1024) {
+          return NextResponse.json(
+            { success: false, message: "Profile image must be smaller than 5MB" },
+            { status: 400 }
+          );
+        }
+        imageFile = profileImage;
+      }
+
+      // Hash Password
       const passwordHash = await bcrypt.hash(parsedData.data.password, 12);
 
-      // 4. Create User and Nested Profile atomically
+      // Upload Profile Image First if Provided
+      let imageUrl: string | null = null;
+      let imagePublicId: string | null = null;
+
+      if (imageFile) {
+        try {
+          const uploadResult = await uploadImage(
+            imageFile,
+            "sathi_futsal/profile-images"
+          );
+
+          // Safely capture URL whether service returns url or secure_url
+          imageUrl =
+            uploadResult?.url ||
+            (uploadResult as unknown as { secureUrl?: string })?.secureUrl ||
+            null;
+
+          imagePublicId =
+            uploadResult?.publicId ||
+            uploadResult?.publicId ||
+            null;
+        } catch (uploadError) {
+          console.error("[REGISTRATION_IMAGE_UPLOAD_ERROR]", uploadError);
+        }
+      }
+
+      // Create User with playerProfile
       const newUser = await prisma.user.create({
         data: {
           email: parsedData.data.email,
@@ -46,28 +129,53 @@ export async function POST(request: Request) {
               location: parsedData.data.location,
               age: parsedData.data.age,
               preferredPosition: parsedData.data.preferredPosition,
-              skillLevel: parsedData.data.skillLevel,
+              skillLevel: parsedData.data.skillLevel as SkillLevel,
               bio: parsedData.data.bio || "",
+              profileImage: imageUrl,
+              profileImagePublicId: imagePublicId,
             },
           },
         },
+        include: { playerProfile: true },
       });
 
       return NextResponse.json(
         {
           success: true,
-          message: "Player account created",
+          message: "Player account created successfully",
           userId: newUser.id,
         },
         { status: 201 }
       );
     }
 
-    if (body.role === "OWNER") {
-      const parsedData = registerOwnerSchema.safeParse(body);
+    // ============================================
+    // OWNER REGISTRATION
+    // ============================================
+    if (role === "OWNER") {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      const fullName = formData.get("fullName") as string;
+      const phoneNumber = formData.get("phoneNumber") as string;
+      const futsalName = formData.get("futsalName") as string;
+      const futsalLocation = formData.get("futsalLocation") as string;
+
+      const parsedData = registerOwnerSchema.safeParse({
+        role,
+        email,
+        password,
+        fullName,
+        phoneNumber,
+        futsalName,
+        futsalLocation,
+      });
+
       if (!parsedData.success) {
         return NextResponse.json(
-          { success: false, errors: parsedData.error.flatten().fieldErrors },
+          {
+            success: false,
+            errors: parsedData.error.flatten().fieldErrors,
+          },
           { status: 400 }
         );
       }
@@ -75,6 +183,7 @@ export async function POST(request: Request) {
       const existingUser = await prisma.user.findUnique({
         where: { email: parsedData.data.email },
       });
+
       if (existingUser) {
         return NextResponse.json(
           { success: false, message: "Email is already registered" },
@@ -103,7 +212,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: true,
-          message: "Owner account created and pending verification",
+          message: "Owner account created successfully",
           userId: newUser.id,
         },
         { status: 201 }

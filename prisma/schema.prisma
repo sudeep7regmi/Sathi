@@ -75,6 +75,7 @@ model PlayerProfile {
   fullName          String
   phoneNumber       String
   profileImage      String?
+  profileImagePublicId String?
   location          String
   age               Int
   preferredPosition String     // e.g., "Goalkeeper", "Defender", "Midfielder", "Forward"
@@ -133,6 +134,7 @@ model GroundImage {
   groundId  String
   ground    Ground @relation(fields: [groundId], references: [id], onDelete: Cascade)
   url       String
+  publicId  String?
 }
 
 model Match {

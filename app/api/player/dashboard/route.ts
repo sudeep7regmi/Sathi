@@ -36,14 +36,17 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get player profile
-    const profile = await prisma.playerProfile.findUnique({
+    // Fetch user with playerProfile from MySQL
+    const user = await prisma.user.findUnique({
       where: {
-        userId,
+        id: userId,
+      },
+      include: {
+        playerProfile: true,
       },
     });
 
-    if (!profile) {
+    if (!user || !user.playerProfile) {
       return NextResponse.json(
         {
           success: false,
@@ -53,7 +56,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get player's bookings
+    // Fetch player's bookings from MySQL
     const bookings = await prisma.booking.findMany({
       where: {
         userId,
@@ -71,15 +74,17 @@ export async function GET(request: Request) {
       },
     });
 
+    const profile = user.playerProfile;
+
     return NextResponse.json(
       {
         success: true,
-
         profile: {
           ...profile,
+          fullName: profile.fullName || "Player",
+          profileImage: profile.profileImage || "",
           userId,
         },
-
         bookings,
       },
       { status: 200 }

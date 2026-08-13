@@ -23,6 +23,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import PlayerAvatar from "@/components/PlayerAvatar";
 
 type BookingStatus = "ALL" | "APPROVED" | "PENDING" | "REJECTED" | "COMPLETED";
 
@@ -30,6 +31,7 @@ interface PlayerProfile {
   fullName: string;
   preferredPosition: string; // e.g. "Midfielder", "Forward", "Defender", "Goalkeeper", "Pivot", "Flank"
   skillLevel: string;
+  profileImage: string;
   rating: number;
   matchesPlayed: number;
   wins: number;
@@ -171,7 +173,7 @@ export default function PlayerDashboardHome() {
         } else {
           console.error("Dashboard fetch error:", err);
         }
-      } finally {
+      } flex: {
         setLoading(false);
       }
     };
@@ -222,7 +224,6 @@ export default function PlayerDashboardHome() {
     const formattedHours = h % 12 || 12;
     return `${formattedHours.toString().padStart(2, "0")}:${minutes} ${ampm}`;
   };
-
   if (loading)
     return (
       <div
@@ -242,16 +243,27 @@ export default function PlayerDashboardHome() {
       className="space-y-8 pb-12 min-h-screen"
       style={{ backgroundColor: "var(--bcolor)", color: "var(--tcolor)" }}
     >
-      {/* Hero Banner */}
+      {/* Hero Banner with Player Profile Image */}
       <div
-        className="relative overflow-hidden border rounded-3xl p-8 md:p-10 shadow-sm"
+        className="relative overflow-hidden border rounded-3xl p-6 md:p-10 shadow-sm flex flex-col md:flex-row items-center gap-6"
         style={{
           backgroundColor: "var(--ccolor)",
           borderColor: "var(--border-color)",
         }}
       >
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-slate-900 mb-3">
+        {/* Profile Avatar */}
+        <div className="relative z-10 shrink-0">
+          <PlayerAvatar
+            src={profile.profileImage}
+            name={profile.fullName}
+            size="xl"
+            className="ring-4 ring-emerald-500/20 shadow-md"
+          />
+        </div>
+
+        {/* Profile Welcome Info */}
+        <div className="relative z-10 max-w-2xl text-center md:text-left">
+          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-slate-900 mb-2">
             Welcome back, {profile.fullName.split(" ")[0]}!
           </h1>
           <p className="text-slate-600 text-sm md:text-base leading-relaxed font-medium">
@@ -266,6 +278,8 @@ export default function PlayerDashboardHome() {
             . Ready to hit the pitch?
           </p>
         </div>
+
+        {/* Ambient Glow */}
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-100 rounded-full blur-3xl pointer-events-none opacity-60"></div>
       </div>
 
@@ -439,7 +453,7 @@ export default function PlayerDashboardHome() {
                               : "bg-emerald-50 border-emerald-100 text-emerald-700"
                           }`}
                         >
-                          <span className="text-[9px] font-ex trabold uppercase tracking-widest">
+                          <span className="text-[9px] font-extrabold uppercase tracking-widest">
                             {typeof formattedDate === "string"
                               ? "DATE"
                               : formattedDate.toLocaleString("default", {

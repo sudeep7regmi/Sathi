@@ -14,18 +14,26 @@ import {
   Shield, 
   CheckCircle2, 
   Flame,
-  X
+  X,
+  Phone,
+  Camera,
+  Award,
+  BarChart3,
+  Mail,
+  AlertTriangle,
+  Percent
 } from 'lucide-react';
 
 const DISPLAY = {
   fontFamily: "'Barlow Condensed', sans-serif",
-  fontWeight: 900,
+  fontWeight: 800,
 };
 
 interface PlayerProfile {
   id: string;
   fullName: string;
   phoneNumber: string;
+  avatarUrl?: string;
   preferredPosition: string;
   skillLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'PRO';
   goals: number;
@@ -52,16 +60,21 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Form states
+  // Core User account states
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'PLAYER' | 'OWNER' | 'ADMIN'>('PLAYER');
   const [isVerified, setIsVerified] = useState(false);
   
-  // Profile stats
+  // Profile & Contact Info
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  
+  // Player Tactical Specs
   const [preferredPosition, setPreferredPosition] = useState('Forward');
   const [skillLevel, setSkillLevel] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'PRO'>('BEGINNER');
+  
+  // Performance Telemetry
   const [goals, setGoals] = useState(0);
   const [assists, setAssists] = useState(0);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
@@ -81,6 +94,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           if (u.playerProfile) {
             setFullName(u.playerProfile.fullName || '');
             setPhoneNumber(u.playerProfile.phoneNumber || '');
+            setAvatarUrl(u.playerProfile.avatarUrl || '');
             setPreferredPosition(u.playerProfile.preferredPosition || 'Forward');
             setSkillLevel(u.playerProfile.skillLevel || 'BEGINNER');
             setGoals(u.playerProfile.goals || 0);
@@ -91,7 +105,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           }
         }
       } catch (err) {
-        console.error('Failed to load user', err);
+        console.error('Failed to load user telemetry', err);
+        setErrorMsg('Could not fetch user record from database.');
       } finally {
         setLoading(false);
       }
@@ -111,6 +126,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         isVerified,
         fullName,
         phoneNumber,
+        avatarUrl,
         preferredPosition,
         skillLevel,
         goals,
@@ -121,76 +137,219 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       });
 
       if (res.data.success) {
-        setSuccessMsg('Telemetry and user attributes updated successfully!');
-        
-        // Auto-dismiss notification after 4 seconds
+        setSuccessMsg('Account data & telemetry saved successfully.');
         setTimeout(() => setSuccessMsg(''), 4000);
       }
     } catch (err) {
-      setErrorMsg('Failed to save telemetry changes. Please try again.');
+      setErrorMsg('Failed to update telemetry. Please verify input data and retry.');
     } finally {
       setSaving(false);
     }
   };
 
+  // Derived Telemetry Calculations
+  const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0;
+  const goalContributions = goals + assists;
+
   if (loading) {
     return (
-      <div className="bg-[#0B0C10] text-[#F0EDE6] min-h-[60vh] flex items-center justify-center font-bold uppercase text-sm" style={DISPLAY}>
-        <Loader2 className="animate-spin h-8 w-8 text-[#C8F55A] mr-3" />
-        <span>Loading Player Telemetry...</span>
+      <div className="bg-[#0D0E12] text-[#E2E8F0] min-h-[60vh] flex flex-col items-center justify-center font-bold tracking-wider uppercase text-xs" style={DISPLAY}>
+        <Loader2 className="animate-spin h-8 w-8 text-[#C8F55A] mb-3" />
+        <span className="text-white/60">Fetching Player Record...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 bg-[#0B0C10] text-[#F0EDE6] min-h-screen relative overflow-hidden pb-12">
-      {/* Background Glow */}
-      <div className="absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full bg-[#C8F55A]/5 blur-[120px] pointer-events-none" />
+    <div className="max-w-6xl mx-auto space-y-6 bg-[#0D0E12] text-[#E2E8F0] min-h-screen p-4 sm:p-6 lg:p-8">
+      
+      {/* Top Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+        <div>
+          <button
+            onClick={() => router.push('/admin/users')}
+            className="inline-flex items-center gap-2 text-white/50 hover:text-[#C8F55A] text-xs font-bold uppercase tracking-wider transition-colors mb-2 cursor-pointer"
+            style={DISPLAY}
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to User Directory
+          </button>
+          <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider flex items-center gap-2.5" style={DISPLAY}>
+            Edit User & Telemetry
+          </h1>
+        </div>
 
-      {/* Navigation Header */}
-      <div className="flex items-center justify-between relative z-10">
-        <button
-          onClick={() => router.push('/admin/users')}
-          className="flex items-center gap-2 text-white/50 hover:text-[#C8F55A] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
-          style={DISPLAY}
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Directory
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push('/admin/users')}
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-lg border border-white/10 transition-all cursor-pointer"
+            style={DISPLAY}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="telemetry-form"
+            disabled={saving}
+            className="px-5 py-2 bg-[#C8F55A] hover:bg-[#bada52] text-black font-black text-xs uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            style={DISPLAY}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" /> Save Record
+              </>
+            )}
+          </button>
+        </div>
+      </div>
 
-        {successMsg && (
-          <div className="flex items-center gap-2 bg-[#C8F55A]/10 border border-[#C8F55A]/30 text-[#C8F55A] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all" style={DISPLAY}>
-            <CheckCircle2 className="w-4 h-4" /> {successMsg}
+      {/* Notifications */}
+      {successMsg && (
+        <div className="flex items-center justify-between bg-[#C8F55A]/10 border border-[#C8F55A]/30 text-[#C8F55A] px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider" style={DISPLAY}>
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{successMsg}</span>
           </div>
-        )}
-      </div>
+          <button onClick={() => setSuccessMsg('')} className="text-white/40 hover:text-white transition-colors cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
-      {/* Page Title */}
-      <div className="relative z-10">
-        <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-wider flex items-center gap-3" style={DISPLAY}>
-          <UserIcon className="w-8 h-8 text-[#C8F55A]" />
-          Edit Telemetry: {email}
-        </h1>
-        <p className="text-white/50 text-sm mt-1">Override system match statistics, roles, and verified credentials.</p>
-      </div>
+      {errorMsg && (
+        <div className="flex items-center justify-between bg-rose-500/10 border border-rose-500/30 text-rose-400 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider" style={DISPLAY}>
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+          <button onClick={() => setErrorMsg('')} className="text-white/40 hover:text-white transition-colors cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+      <form id="telemetry-form" onSubmit={handleSubmit} className="space-y-6">
         
-        {/* SECTION 1: Core System Attributes */}
-        <div className="bg-[#12161A] p-6 rounded-2xl border border-white/5 shadow-xl space-y-6">
-          <h2 className="text-xl font-bold uppercase text-[#C8F55A] flex items-center gap-2 border-b border-white/5 pb-4" style={DISPLAY}>
-            <Shield className="w-5 h-5" /> Account Classification
-          </h2>
+        {/* SECTION 1: Identity & Profile Header */}
+        <div className="bg-[#13151B] p-5 sm:p-6 rounded-xl border border-white/10 shadow-md">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 pb-6 border-b border-white/5">
+            
+            {/* Avatar Preview */}
+            <div className="relative group shrink-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#1C1F26] border-2 border-white/10 overflow-hidden flex items-center justify-center">
+                {avatarUrl ? (
+                  <img 
+                    src={avatarUrl} 
+                    alt={fullName || 'Player Avatar'} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                  />
+                ) : (
+                  <UserIcon className="w-10 h-10 text-white/30" />
+                )}
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-[#C8F55A] text-black p-1.5 rounded-lg border border-black text-xs">
+                <Camera className="w-3.5 h-3.5" />
+              </div>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Role Select */}
+            {/* Quick Summary Info */}
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase text-[#C8F55A] bg-[#C8F55A]/10 px-2 py-0.5 rounded border border-[#C8F55A]/20" style={DISPLAY}>
+                  ID: {id}
+                </span>
+                <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded border ${
+                  isVerified ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                }`} style={DISPLAY}>
+                  {isVerified ? 'Verified' : 'Unverified'}
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-white">{fullName || 'Unnamed Player'}</h2>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-white/50 pt-1">
+                <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-white/30" /> {email}</span>
+                <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-white/30" /> {phoneNumber || 'No phone set'}</span>
+              </div>
+            </div>
+
+            {/* Telemetry Metric Badges */}
+            <div className="flex items-center gap-3 w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-white/5">
+              <div className="bg-[#1C1F26] p-3 rounded-xl border border-white/5 text-center min-w-[90px]">
+                <p className="text-[10px] font-bold uppercase text-white/40" style={DISPLAY}>Win Rate</p>
+                <p className="text-lg font-black text-white flex items-center justify-center gap-0.5 mt-0.5">
+                  {winRate}<Percent className="w-3 h-3 text-[#C8F55A]" />
+                </p>
+              </div>
+              <div className="bg-[#1C1F26] p-3 rounded-xl border border-white/5 text-center min-w-[90px]">
+                <p className="text-[10px] font-bold uppercase text-white/40" style={DISPLAY}>Contributions</p>
+                <p className="text-lg font-black text-[#C8F55A] mt-0.5">{goalContributions}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Identity Form Controls */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-6">
             <div>
-              <label className="block text-xs font-bold uppercase text-white/50 tracking-wider mb-2" style={DISPLAY}>
-                Role Assignment
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g. Bimal Magar"
+                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-medium text-white focus:outline-none focus:border-[#C8F55A]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
+                Phone Number
+              </label>
+              <input
+                type="text"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+977 98XXXXXXXX"
+                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-medium text-white focus:outline-none focus:border-[#C8F55A]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
+                Avatar Image URL
+              </label>
+              <input
+                type="url"
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-medium text-white focus:outline-none focus:border-[#C8F55A]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 2: Role Access & Status Controls */}
+        <div className="bg-[#13151B] p-5 sm:p-6 rounded-xl border border-white/10 shadow-md space-y-4">
+          <h3 className="text-xs font-bold uppercase text-white/50 tracking-wider flex items-center gap-2 border-b border-white/5 pb-3" style={DISPLAY}>
+            <Shield className="w-4 h-4 text-[#C8F55A]" /> Access Control & System Role
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
+                System Role Assignment
               </label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value as 'PLAYER' | 'OWNER' | 'ADMIN')}
-                className="w-full bg-[#0B0C10] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-[#C8F55A]"
+                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-bold uppercase text-white focus:outline-none focus:border-[#C8F55A] cursor-pointer"
+                style={DISPLAY}
               >
                 <option value="PLAYER">PLAYER</option>
                 <option value="OWNER">OWNER</option>
@@ -198,125 +357,42 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               </select>
             </div>
 
-            {/* Verification Check */}
             <div>
-              <label className="block text-xs font-bold uppercase text-white/50 tracking-wider mb-2" style={DISPLAY}>
-                Verification Badge
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
+                Verification Badge Status
               </label>
               <button
                 type="button"
                 onClick={() => setIsVerified(!isVerified)}
-                className={`w-full py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all cursor-pointer ${
+                className={`w-full py-2.5 px-4 rounded-lg font-bold text-xs uppercase tracking-wider border transition-all cursor-pointer flex items-center justify-between ${
                   isVerified
-                    ? 'bg-[#C8F55A]/10 border-[#C8F55A] text-[#C8F55A]'
-                    : 'bg-white/5 border-white/10 text-white/40'
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                    : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10'
                 }`}
                 style={DISPLAY}
               >
-                {isVerified ? 'VERIFIED ACCOUNT' : 'UNVERIFIED / PENDING'}
+                <span>{isVerified ? 'VERIFIED ACCOUNT' : 'UNVERIFIED / PENDING'}</span>
+                <span className={`w-2.5 h-2.5 rounded-full ${isVerified ? 'bg-emerald-400' : 'bg-white/30'}`} />
               </button>
-            </div>
-
-            {/* Full Name */}
-            <div>
-              <label className="block text-xs font-bold uppercase text-white/50 tracking-wider mb-2" style={DISPLAY}>
-                Display Name
-              </label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Bimal Magar"
-                className="w-full bg-[#0B0C10] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-[#C8F55A]"
-              />
             </div>
           </div>
         </div>
 
-        {/* SECTION 2: Match Telemetry & Scoring Data */}
-        <div className="bg-[#12161A] p-6 rounded-2xl border border-white/5 shadow-xl space-y-6">
-          <h2 className="text-xl font-bold uppercase text-[#C8F55A] flex items-center gap-2 border-b border-white/5 pb-4" style={DISPLAY}>
-            <Trophy className="w-5 h-5" /> Match Telemetry & Scoring
-          </h2>
+        {/* SECTION 3: Player Positioning & Tactical Specs */}
+        <div className="bg-[#13151B] p-5 sm:p-6 rounded-xl border border-white/10 shadow-md space-y-4">
+          <h3 className="text-xs font-bold uppercase text-white/50 tracking-wider flex items-center gap-2 border-b border-white/5 pb-3" style={DISPLAY}>
+            <Award className="w-4 h-4 text-[#C8F55A]" /> Tactical Attributes
+          </h3>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            
-            {/* Goals Input */}
-            <div className="bg-[#0B0C10] p-4 rounded-xl border border-white/5 space-y-2">
-              <label className="text-xs font-bold uppercase text-white/60 tracking-wider flex items-center justify-between" style={DISPLAY}>
-                <span>Goals Scored</span>
-                <Target className="w-4 h-4 text-[#C8F55A]" />
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={goals}
-                onChange={(e) => setGoals(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-transparent text-3xl font-black text-white focus:outline-none"
-                style={DISPLAY}
-              />
-            </div>
-
-            {/* Assists Input */}
-            <div className="bg-[#0B0C10] p-4 rounded-xl border border-white/5 space-y-2">
-              <label className="text-xs font-bold uppercase text-white/60 tracking-wider flex items-center justify-between" style={DISPLAY}>
-                <span>Assists</span>
-                <Flame className="w-4 h-4 text-[#C8F55A]" />
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={assists}
-                onChange={(e) => setAssists(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-transparent text-3xl font-black text-white focus:outline-none"
-                style={DISPLAY}
-              />
-            </div>
-
-            {/* Total Matches */}
-            <div className="bg-[#0B0C10] p-4 rounded-xl border border-white/5 space-y-2">
-              <label className="text-xs font-bold uppercase text-white/60 tracking-wider flex items-center justify-between" style={DISPLAY}>
-                <span>Matches Played</span>
-                <Activity className="w-4 h-4 text-white/40" />
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={matchesPlayed}
-                onChange={(e) => setMatchesPlayed(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-transparent text-3xl font-black text-white focus:outline-none"
-                style={DISPLAY}
-              />
-            </div>
-
-            {/* Wins Input */}
-            <div className="bg-[#0B0C10] p-4 rounded-xl border border-white/5 space-y-2">
-              <label className="text-xs font-bold uppercase text-white/60 tracking-wider flex items-center justify-between" style={DISPLAY}>
-                <span>Total Wins</span>
-                <Trophy className="w-4 h-4 text-blue-400" />
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={wins}
-                onChange={(e) => setWins(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full bg-transparent text-3xl font-black text-white focus:outline-none"
-                style={DISPLAY}
-              />
-            </div>
-
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-            {/* Preferred Position */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase text-white/50 tracking-wider mb-2" style={DISPLAY}>
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
                 Preferred Position
               </label>
               <select
                 value={preferredPosition}
                 onChange={(e) => setPreferredPosition(e.target.value)}
-                className="w-full bg-[#0B0C10] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-[#C8F55A]"
+                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-medium text-white focus:outline-none focus:border-[#C8F55A] cursor-pointer"
               >
                 <option value="Forward">Forward</option>
                 <option value="Midfielder">Midfielder</option>
@@ -325,15 +401,15 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               </select>
             </div>
 
-            {/* Skill Level */}
             <div>
-              <label className="block text-xs font-bold uppercase text-white/50 tracking-wider mb-2" style={DISPLAY}>
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
                 Skill Classification
               </label>
               <select
                 value={skillLevel}
                 onChange={(e) => setSkillLevel(e.target.value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'PRO')}
-                className="w-full bg-[#0B0C10] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-[#C8F55A]"
+                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-bold uppercase text-white focus:outline-none focus:border-[#C8F55A] cursor-pointer"
+                style={DISPLAY}
               >
                 <option value="BEGINNER">BEGINNER</option>
                 <option value="INTERMEDIATE">INTERMEDIATE</option>
@@ -344,72 +420,91 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
-        {/* Dynamic Status Banners (Form-level) */}
-        {successMsg && (
-          <div 
-            className="flex items-center justify-between bg-[#C8F55A]/10 border border-[#C8F55A]/40 text-[#C8F55A] p-4 rounded-xl text-xs font-bold uppercase tracking-wider"
-            style={DISPLAY}
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 shrink-0 text-[#C8F55A]" />
-              <span>{successMsg}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSuccessMsg('')}
-              className="text-white/40 hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        {/* SECTION 4: Match Telemetry & Performance Counters */}
+        <div className="bg-[#13151B] p-5 sm:p-6 rounded-xl border border-white/10 shadow-md space-y-4">
+          <h3 className="text-xs font-bold uppercase text-white/50 tracking-wider flex items-center justify-between border-b border-white/5 pb-3" style={DISPLAY}>
+            <span className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-[#C8F55A]" /> Match Telemetry Data</span>
+            <span className="text-[10px] text-white/30 font-normal">Direct numerical override</span>
+          </h3>
 
-        {errorMsg && (
-          <div 
-            className="flex items-center justify-between bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl text-xs font-bold uppercase tracking-wider"
-            style={DISPLAY}
-          >
-            <div className="flex items-center gap-3">
-              <X className="w-5 h-5 shrink-0 text-red-400" />
-              <span>{errorMsg}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            
+            {/* Matches Played */}
+            <div className="bg-[#0D0E12] p-3 rounded-lg border border-white/10 space-y-1">
+              <label className="text-[10px] font-bold uppercase text-white/50 flex items-center justify-between" style={DISPLAY}>
+                <span>Matches</span>
+                <Activity className="w-3.5 h-3.5 text-white/40" />
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={matchesPlayed}
+                onChange={(e) => setMatchesPlayed(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full bg-transparent text-xl font-bold text-white focus:outline-none"
+              />
             </div>
-            <button
-              type="button"
-              onClick={() => setErrorMsg('')}
-              className="text-white/40 hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
 
-        {/* Submit Bar */}
-        <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => router.push('/admin/users')}
-            className="px-6 py-3.5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
-            style={DISPLAY}
-          >
-            Cancel
-          </button>
-          
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-8 py-3.5 bg-[#C8F55A] hover:bg-[#bada52] text-black font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-[#C8F55A]/20 flex items-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
-            style={DISPLAY}
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Saving Changes...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" /> Save Telemetry
-              </>
-            )}
-          </button>
+            {/* Goals */}
+            <div className="bg-[#0D0E12] p-3 rounded-lg border border-white/10 space-y-1">
+              <label className="text-[10px] font-bold uppercase text-white/50 flex items-center justify-between" style={DISPLAY}>
+                <span>Goals</span>
+                <Target className="w-3.5 h-3.5 text-[#C8F55A]" />
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={goals}
+                onChange={(e) => setGoals(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full bg-transparent text-xl font-bold text-white focus:outline-none"
+              />
+            </div>
+
+            {/* Assists */}
+            <div className="bg-[#0D0E12] p-3 rounded-lg border border-white/10 space-y-1">
+              <label className="text-[10px] font-bold uppercase text-white/50 flex items-center justify-between" style={DISPLAY}>
+                <span>Assists</span>
+                <Flame className="w-3.5 h-3.5 text-[#C8F55A]" />
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={assists}
+                onChange={(e) => setAssists(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full bg-transparent text-xl font-bold text-white focus:outline-none"
+              />
+            </div>
+
+            {/* Wins */}
+            <div className="bg-[#0D0E12] p-3 rounded-lg border border-white/10 space-y-1">
+              <label className="text-[10px] font-bold uppercase text-white/50 flex items-center justify-between" style={DISPLAY}>
+                <span>Wins</span>
+                <Trophy className="w-3.5 h-3.5 text-emerald-400" />
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={wins}
+                onChange={(e) => setWins(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full bg-transparent text-xl font-bold text-emerald-400 focus:outline-none"
+              />
+            </div>
+
+            {/* Losses */}
+            <div className="bg-[#0D0E12] p-3 rounded-lg border border-white/10 space-y-1 col-span-2 sm:col-span-1">
+              <label className="text-[10px] font-bold uppercase text-white/50 flex items-center justify-between" style={DISPLAY}>
+                <span>Losses</span>
+                <X className="w-3.5 h-3.5 text-rose-400" />
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={losses}
+                onChange={(e) => setLosses(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full bg-transparent text-xl font-bold text-rose-400 focus:outline-none"
+              />
+            </div>
+
+          </div>
         </div>
 
       </form>
