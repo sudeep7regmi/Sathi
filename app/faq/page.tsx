@@ -45,6 +45,13 @@ const FAQ_DATA: FAQItem[] = [
     answer:
       "During setup, you choose your primary role (e.g., Pivot, Flank, Fixo, Goalkeeper) and self-assess your skill level. As you play matches and log results, your profile rating updates to help match you with balanced opponents and teammates.",
   },
+  {
+    id: "g4",
+    category: "general",
+    question: "How can I request an update to my player stats?",
+    answer:
+      "To update your player stats, please submit a request to our admin team by sending an email with your profile details and match records to sudeepregmi343@gmail.com or sathiproject@devbhujel.com.np.",
+  },
 
   // Ground Booking
   {
@@ -167,7 +174,7 @@ export default function FAQPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search questions (e.g. refund, futsal booking, eSewa)..."
+            placeholder="Search questions (e.g. stats, refund, futsal booking, eSewa)..."
             className="w-full pl-11 pr-4 py-3.5 rounded-2xl border text-sm font-medium transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
           />
           {searchQuery && (

@@ -13,7 +13,8 @@ import {
   Loader2, 
   Shield, 
   CheckCircle2, 
-  Flame
+  Flame,
+  X
 } from 'lucide-react';
 
 const DISPLAY = {
@@ -49,6 +50,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Form states
   const [email, setEmail] = useState('');
@@ -101,6 +103,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
     e.preventDefault();
     setSaving(true);
     setSuccessMsg('');
+    setErrorMsg('');
 
     try {
       const res = await apiClient.patch(`/api/admin/users/${id}`, {
@@ -118,11 +121,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       });
 
       if (res.data.success) {
-        setSuccessMsg('Telemetry updated successfully!');
-        setTimeout(() => setSuccessMsg(''), 3000);
+        setSuccessMsg('Telemetry and user attributes updated successfully!');
+        
+        // Auto-dismiss notification after 4 seconds
+        setTimeout(() => setSuccessMsg(''), 4000);
       }
     } catch (err) {
-      alert('Failed to save changes.');
+      setErrorMsg('Failed to save telemetry changes. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -153,7 +158,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         </button>
 
         {successMsg && (
-          <div className="flex items-center gap-2 bg-[#C8F55A]/10 border border-[#C8F55A]/30 text-[#C8F55A] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider animate-fade-in" style={DISPLAY}>
+          <div className="flex items-center gap-2 bg-[#C8F55A]/10 border border-[#C8F55A]/30 text-[#C8F55A] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all" style={DISPLAY}>
             <CheckCircle2 className="w-4 h-4" /> {successMsg}
           </div>
         )}
@@ -339,6 +344,45 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
+        {/* Dynamic Status Banners (Form-level) */}
+        {successMsg && (
+          <div 
+            className="flex items-center justify-between bg-[#C8F55A]/10 border border-[#C8F55A]/40 text-[#C8F55A] p-4 rounded-xl text-xs font-bold uppercase tracking-wider"
+            style={DISPLAY}
+          >
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-[#C8F55A]" />
+              <span>{successMsg}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSuccessMsg('')}
+              className="text-white/40 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div 
+            className="flex items-center justify-between bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl text-xs font-bold uppercase tracking-wider"
+            style={DISPLAY}
+          >
+            <div className="flex items-center gap-3">
+              <X className="w-5 h-5 shrink-0 text-red-400" />
+              <span>{errorMsg}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setErrorMsg('')}
+              className="text-white/40 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Submit Bar */}
         <div className="flex justify-end gap-4">
           <button
@@ -353,7 +397,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           <button
             type="submit"
             disabled={saving}
-            className="px-8 py-3.5 bg-[#C8F55A] hover:bg-[#bada52] text-black font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-[#C8F55A]/20 flex items-center gap-2 cursor-pointer active:scale-95"
+            className="px-8 py-3.5 bg-[#C8F55A] hover:bg-[#bada52] text-black font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-[#C8F55A]/20 flex items-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
             style={DISPLAY}
           >
             {saving ? (

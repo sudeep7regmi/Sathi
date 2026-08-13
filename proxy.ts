@@ -77,5 +77,7 @@ export async function proxy(request: NextRequest) {
 
 // Target all routes except standard static files
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|faq|privacy|terms|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|forgot-password||reset-password|faq|privacy|terms|favicon.ico).*)",
+  ],
 };
