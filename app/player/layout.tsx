@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { apiClient } from "@/lib/axios";
 import { SocketProvider } from "@/components/providers/SocketProvider";
@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   User,
+  ChevronDown,
 } from "lucide-react";
 
 interface PlayerLayoutProps {
@@ -26,7 +27,10 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [userName, setUserName] = useState("Player");
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchHeaderProfile = async () => {
@@ -43,9 +47,26 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
   }, []);
 
   useEffect(() => {
-    const handlePathChange = () => setIsSidebarOpen(false);
+    const handlePathChange = () => {
+      setIsSidebarOpen(false);
+      setIsProfileMenuOpen(false);
+    };
     handlePathChange();
   }, [pathname]);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -196,14 +217,64 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
               <PlayerSearch className="w-full" limit={5} />
             </div>
 
-            {/* Right Section: Identity badge profile widget */}
-            <div className="flex items-center space-x-3 bg-white pl-4 pr-1.5 py-1.5 rounded-full border border-slate-200 shadow-xs shrink-0">
-              <span className="text-xs font-bold uppercase text-slate-700 hidden sm:inline tracking-wider">
-                {userName}
-              </span>
-              <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold flex items-center justify-center text-xs tracking-wider">
-                {getInitials(userName) || <User className="w-3.5 h-3.5" />}
-              </div>
+            {/* Right Section: Identity badge profile widget with Dropdown */}
+            <div className="relative shrink-0" ref={dropdownRef}>
+              <button
+                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                className="flex items-center space-x-2.5 bg-white pl-4 pr-2.5 py-1.5 rounded-full border border-slate-200 shadow-xs hover:border-slate-300 transition-colors cursor-pointer focus:outline-none"
+              >
+                <span className="text-xs font-bold uppercase text-slate-700 hidden sm:inline tracking-wider">
+                  {userName}
+                </span>
+                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold flex items-center justify-center text-xs tracking-wider shrink-0">
+                  {getInitials(userName) || <User className="w-3.5 h-3.5" />}
+                </div>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+                    isProfileMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl border border-slate-200 shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-900 truncate">
+                      {userName}
+                    </p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                      Player Account
+                    </p>
+                  </div>
+
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        router.push("/player/profile");
+                      }}
+                      className="w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center space-x-2 transition-colors cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>View Profile</span>
+                    </button>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-1">
+                    <button
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-red-600" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </header>
 
