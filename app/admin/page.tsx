@@ -118,7 +118,7 @@ export default function AdminDashboard() {
         {/* Header Title & Controls Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            {/* <div className="flex items-center gap-2 mb-2">
               <span className="flex h-2 w-2 rounded-full bg-[#C8F55A] animate-ping" />
               <span
                 className="text-[11px] font-bold uppercase tracking-widest text-[#C8F55A]"
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
               >
                 Live Telemetry Feed
               </span>
-            </div>
+            </div> */}
             <h1
               className="text-4xl md:text-5xl text-[#F0EDE6] uppercase tracking-wide font-black"
               style={DISPLAY}
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
                 Last Sync
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
                 }`}
               />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* System Health Banner */}

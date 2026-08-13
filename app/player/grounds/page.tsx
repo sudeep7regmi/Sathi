@@ -18,6 +18,8 @@ import {
   ImageIcon,
   X,
   AlertCircle,
+  Maximize2,
+  Lock,
 } from "lucide-react";
 
 interface Ground {
@@ -77,6 +79,9 @@ export default function BookGroundsPage() {
 
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+
+  // Expanded QR Lightbox modal state
+  const [expandedQrUrl, setExpandedQrUrl] = useState<string | null>(null);
 
   const [message, setMessage] = useState<{
     text: string;
@@ -145,7 +150,16 @@ export default function BookGroundsPage() {
     return hours * 60 + minutes;
   };
 
-  // Determines if a static slot is occupied by any non-rejected booking
+  // Helper to normalize dates to YYYY-MM-DD
+  const formatDateString = (dateStr: string): string => {
+    if (!dateStr) return "";
+    if (dateStr.includes("T")) {
+      return dateStr.split("T")[0];
+    }
+    return dateStr;
+  };
+
+  // Determines if a static slot is occupied by any active non-rejected booking
   const isSlotOccupied = (slot: TimeSlot): boolean => {
     if (!selectedDate) return false;
 
@@ -155,7 +169,8 @@ export default function BookGroundsPage() {
     return existingBookings.some((b) => {
       if (b.status === "REJECTED") return false;
 
-      const isSameDate = b.date.startsWith(selectedDate);
+      const bookingDateFormatted = formatDateString(b.date);
+      const isSameDate = bookingDateFormatted === selectedDate;
       if (!isSameDate) return false;
 
       const existingStart = parseTimeToMinutes(b.startTime);
@@ -179,7 +194,7 @@ export default function BookGroundsPage() {
 
     if (isSlotOccupied(selectedSlot)) {
       setMessage({
-        text: "The chosen time slot is no longer available.",
+        text: "The chosen time slot is already booked. Please select another slot.",
         type: "error",
       });
       return;
@@ -292,9 +307,43 @@ export default function BookGroundsPage() {
         </div>
       )}
 
+      {/* Lightbox / Expanded QR Code Modal */}
+      {expandedQrUrl && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setExpandedQrUrl(null)}
+        >
+          <div
+            className="relative bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col items-center gap-4 text-center border border-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setExpandedQrUrl(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 text-emerald-600 font-extrabold text-sm uppercase tracking-wider">
+              <QrCode className="w-5 h-5" />
+              <span>Scan to Pay</span>
+            </div>
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl shadow-inner w-full flex items-center justify-center">
+              <img
+                src={expandedQrUrl}
+                alt="Expanded Payment QR Code"
+                className="max-h-[60vh] object-contain rounded-xl"
+              />
+            </div>
+            <p className="text-xs text-slate-500 font-semibold">
+              Open your eSewa, Khalti, or Mobile Banking app and point your camera at this QR code.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Booking Modal */}
       {selectedGround && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div
             className="w-full max-w-2xl rounded-3xl border shadow-xl p-6 md:p-8 space-y-5 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
             style={{
@@ -326,11 +375,12 @@ export default function BookGroundsPage() {
                   required
                   type="date"
                   value={selectedDate}
+                  min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => {
                     setSelectedDate(e.target.value);
                     setSelectedSlot(null);
                   }}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-sm"
+                  className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-sm cursor-pointer"
                 />
               </div>
 
@@ -348,8 +398,8 @@ export default function BookGroundsPage() {
                 </div>
 
                 {!selectedDate ? (
-                  <p className="text-xs text-slate-400 font-medium italic">
-                    Please select a date above to view time slot availability.
+                  <p className="text-xs text-slate-400 font-medium italic bg-slate-50 p-3 rounded-xl border border-dashed border-slate-200">
+                    Please select a date above to check slot availability.
                   </p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -363,16 +413,29 @@ export default function BookGroundsPage() {
                           type="button"
                           disabled={occupied || fetchingBookings}
                           onClick={() => setSelectedSlot(slot)}
-                          className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${
+                          className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 ${
                             occupied
-                              ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed line-through"
+                              ? "bg-slate-100/80 border-slate-200 text-slate-400 cursor-not-allowed opacity-75 shadow-none"
                               : isSelected
-                              ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
-                              : "bg-white border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-600 cursor-pointer"
+                              ? "bg-emerald-600 border-emerald-600 text-white shadow-md scale-[1.02]"
+                              : "bg-white border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-600 cursor-pointer hover:shadow-xs"
                           }`}
                         >
-                          <span>{slot.label}</span>
-                          <span className="text-[9px] font-semibold opacity-80">
+                          <div className="flex items-center gap-1">
+                            {occupied && <Lock className="w-3 h-3 text-slate-400 shrink-0" />}
+                            <span className={occupied ? "line-through text-slate-400" : ""}>
+                              {slot.label}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                              occupied
+                                ? "bg-slate-200 text-slate-500"
+                                : isSelected
+                                ? "bg-emerald-700 text-emerald-100"
+                                : "bg-emerald-50 text-emerald-600"
+                            }`}
+                          >
                             {occupied ? "Booked" : isSelected ? "Selected" : "Available"}
                           </span>
                         </button>
@@ -390,18 +453,36 @@ export default function BookGroundsPage() {
 
                 {selectedGround.paymentQrUrl ? (
                   <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center sm:text-left">
-                    <div className="w-32 h-32 bg-white border border-slate-200 rounded-xl p-2 shrink-0 flex items-center justify-center shadow-xs">
+                    {/* Interactive Expandable QR Code Container */}
+                    <div
+                      onClick={() => setExpandedQrUrl(selectedGround.paymentQrUrl || null)}
+                      className="group relative w-32 h-32 bg-white border border-slate-200 rounded-xl p-2 shrink-0 flex items-center justify-center shadow-xs cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all overflow-hidden"
+                    >
                       <img
                         src={selectedGround.paymentQrUrl}
                         alt="Payment QR Code"
-                        className="max-w-full max-h-full object-contain"
+                        className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform"
                       />
+                      <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-1 rounded-xl">
+                        <Maximize2 className="w-4 h-4" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider">Enlarge</span>
+                      </div>
                     </div>
+
                     <div className="space-y-1 text-xs text-slate-600">
-                      <p className="font-bold text-slate-900">Scan via eSewa / Khalti / Mobile Banking</p>
-                      <p className="text-[11px] text-slate-500">
-                        Scan this QR code using your digital wallet or banking app to make the required payment.
+                      <p className="font-bold text-slate-900 flex items-center justify-center sm:justify-start gap-1">
+                        Scan via eSewa / Khalti / Mobile Banking
                       </p>
+                      <p className="text-[11px] text-slate-500">
+                        Scan this QR code using your digital wallet or banking app to complete the booking payment.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setExpandedQrUrl(selectedGround.paymentQrUrl || null)}
+                        className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 uppercase tracking-wider cursor-pointer"
+                      >
+                        <Maximize2 className="w-3 h-3" /> Click QR image to view full screen
+                      </button>
                     </div>
                   </div>
                 ) : (
@@ -428,7 +509,7 @@ export default function BookGroundsPage() {
                           setReceiptFile(null);
                           setReceiptPreview(null);
                         }}
-                        className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-90 hover:opacity-100"
+                        className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-90 hover:opacity-100 cursor-pointer"
                       >
                         <X className="w-3 h-3" />
                       </button>
