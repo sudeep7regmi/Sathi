@@ -61,9 +61,8 @@ export default function PrivacyPolicy() {
             <h2 className="text-xl font-semibold text-[#C8F55A]">5. Contact Us</h2>
             <p>
               For questions regarding your privacy rights or account deletion requests, reach out to our team at{" "}
-              <a href="mailto:sudeepregmi343@gmail.com" className="text-[#C8F55A] hover:underline">
-                sudeepregmi343@gmail.com
-              </a>.
+              <a href="mailto:sathiproject@devbhujel.com.np" className="text-[#C8F55A] hover:underline">
+              sathiproject@devbhujel.com.np              </a>.
             </p>
           </section>
         </div>

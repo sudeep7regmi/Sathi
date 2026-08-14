@@ -159,10 +159,10 @@ export default function AboutUsPage() {
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
                 <a
-                  href="mailto:sudeepregmi343@gmail.com"
+                  href="mailto:sathiproject@devbhujel.com.np"
                   className="hover:text-emerald-400 transition-colors"
                 >
-                  sudeepregmi343@gmail.com
+                  sathiproject@devbhujel.com.np
                 </a>
               </div>
             </div>
