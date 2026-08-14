@@ -21,7 +21,9 @@ import {
   BarChart3,
   Mail,
   AlertTriangle,
-  Percent
+  Percent,
+  CloudUpload,
+  Link
 } from 'lucide-react';
 
 const DISPLAY = {
@@ -33,7 +35,7 @@ interface PlayerProfile {
   id: string;
   fullName: string;
   phoneNumber: string;
-  avatarUrl?: string;
+  profileImage?: string; // Cloudinary URL field from database
   preferredPosition: string;
   skillLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'PRO';
   goals: number;
@@ -65,10 +67,11 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   const [role, setRole] = useState<'PLAYER' | 'OWNER' | 'ADMIN'>('PLAYER');
   const [isVerified, setIsVerified] = useState(false);
   
-  // Profile & Contact Info
+  // Profile & Contact Info (Using player profileImage Cloudinary URL)
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [profileImage, setProfileImage] = useState('');
+  const [imageError, setImageError] = useState(false);
   
   // Player Tactical Specs
   const [preferredPosition, setPreferredPosition] = useState('Forward');
@@ -94,7 +97,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           if (u.playerProfile) {
             setFullName(u.playerProfile.fullName || '');
             setPhoneNumber(u.playerProfile.phoneNumber || '');
-            setAvatarUrl(u.playerProfile.avatarUrl || '');
+            // Set Cloudinary profileImage URL directly from database record
+            setProfileImage(u.playerProfile.profileImage || '');
             setPreferredPosition(u.playerProfile.preferredPosition || 'Forward');
             setSkillLevel(u.playerProfile.skillLevel || 'BEGINNER');
             setGoals(u.playerProfile.goals || 0);
@@ -126,7 +130,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         isVerified,
         fullName,
         phoneNumber,
-        avatarUrl,
+        profileImage, // Save updated Cloudinary URL field
         preferredPosition,
         skillLevel,
         goals,
@@ -234,26 +238,26 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
 
       <form id="telemetry-form" onSubmit={handleSubmit} className="space-y-6">
         
-        {/* SECTION 1: Identity & Profile Header */}
+        {/* SECTION 1: Identity & Profile Header with Cloudinary profileImage */}
         <div className="bg-[#13151B] p-5 sm:p-6 rounded-xl border border-white/10 shadow-md">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6 pb-6 border-b border-white/5">
             
-            {/* Avatar Preview */}
+            {/* Player Cloudinary Image Preview */}
             <div className="relative group shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#1C1F26] border-2 border-white/10 overflow-hidden flex items-center justify-center">
-                {avatarUrl ? (
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#1C1F26] border-2 border-white/10 overflow-hidden flex items-center justify-center relative shadow-lg">
+                {profileImage && !imageError ? (
                   <img 
-                    src={avatarUrl} 
-                    alt={fullName || 'Player Avatar'} 
+                    src={profileImage} 
+                    alt={fullName || 'Player Profile Image'} 
                     className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                    onError={() => setImageError(true)}
                   />
                 ) : (
-                  <UserIcon className="w-10 h-10 text-white/30" />
+                  <UserIcon className="w-12 h-12 text-white/30" />
                 )}
               </div>
-              <div className="absolute -bottom-1 -right-1 bg-[#C8F55A] text-black p-1.5 rounded-lg border border-black text-xs">
-                <Camera className="w-3.5 h-3.5" />
+              <div className="absolute -bottom-1 -right-1 bg-[#C8F55A] text-black p-1.5 rounded-lg border border-black text-xs shadow-md">
+                <Camera className="w-4 h-4" />
               </div>
             </div>
 
@@ -269,7 +273,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   {isVerified ? 'Verified' : 'Unverified'}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-white">{fullName || 'Unnamed Player'}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white">{fullName || 'Unnamed Player'}</h2>
               <div className="flex flex-wrap items-center gap-4 text-xs text-white/50 pt-1">
                 <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-white/30" /> {email}</span>
                 <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-white/30" /> {phoneNumber || 'No phone set'}</span>
@@ -319,17 +323,29 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase text-white/60 mb-1.5" style={DISPLAY}>
-                Avatar Image URL
+            {/* Cloudinary profileImage URL Input */}
+            <div className="sm:col-span-2 lg:col-span-1 space-y-2">
+              <label className="block text-xs font-bold uppercase text-white/60 flex items-center justify-between" style={DISPLAY}>
+                <span className="flex items-center gap-1.5 text-[#C8F55A]">
+                  <CloudUpload className="w-3.5 h-3.5" /> Player Profile Image (Cloudinary)
+                </span>
+                {profileImage && profileImage.includes('cloudinary.com') && (
+                  <span className="text-[10px] text-emerald-400 font-bold">Cloudinary Loaded</span>
+                )}
               </label>
-              <input
-                type="url"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-[#0D0E12] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs font-medium text-white focus:outline-none focus:border-[#C8F55A]"
-              />
+              <div className="relative">
+                <Link className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <input
+                  type="url"
+                  value={profileImage}
+                  onChange={(e) => {
+                    setProfileImage(e.target.value);
+                    setImageError(false);
+                  }}
+                  placeholder="https://res.cloudinary.com/.../image/upload/..."
+                  className="w-full bg-[#0D0E12] border border-white/10 rounded-lg pl-9 pr-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-[#C8F55A]"
+                />
+              </div>
             </div>
           </div>
         </div>
