@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'sathi_core_jwt_access_string_secret_2026_local');
 
+
 export async function GET(request: Request) {
   try {
     const cookieHeader = request.headers.get('cookie') || '';
