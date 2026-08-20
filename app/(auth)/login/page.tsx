@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/axios';
 import Link from 'next/link';
 import axios from 'axios';
+import SathiLogo from '@/components/ui/SathiLogo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function LoginPage() {
         href="/" 
         className="text-emerald-600 text-3xl font-black tracking-tight mb-8 z-10 hover:opacity-90 transition-opacity flex items-center gap-1"
       >
-        SATHI<span className="text-slate-400 font-bold text-xl">.app</span>
+       <SathiLogo/>
       </Link>
 
       <div 

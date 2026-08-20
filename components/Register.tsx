@@ -151,7 +151,7 @@ export default function RegisterPage() {
             className="text-4xl text-gray-900 uppercase tracking-wide mb-2"
             style={DISPLAY}
           >
-            Join SATHI
+            Join Sathi
           </h1>
           <p className="text-gray-500 text-sm">
             Select your profile category to sign up
@@ -432,7 +432,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#C8F55A] text-[#111] py-3.5 rounded-xl text-base font-bold tracking-wider uppercase hover:bg-[#A8D448] active:scale-[0.99] disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-green-200 mt-4"
+            className="w-full bg-[#a7f55a] text-[#111] py-3.5 rounded-xl text-base font-bold tracking-wider uppercase hover:bg-[#A8D448] active:scale-[0.99] disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-green-200 mt-4"
             style={DISPLAY}
           >
             {loading ? "Processing..." : "Create SATHI Account"}

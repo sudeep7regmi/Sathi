@@ -68,7 +68,9 @@ const STATIC_TIME_SLOTS: TimeSlot[] = [
 
 export default function BookGroundsPage() {
   const [grounds, setGrounds] = useState<Ground[]>([]);
-  const [existingBookings, setExistingBookings] = useState<ExistingBooking[]>([]);
+  const [existingBookings, setExistingBookings] = useState<ExistingBooking[]>(
+    []
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [fetchingBookings, setFetchingBookings] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -91,7 +93,10 @@ export default function BookGroundsPage() {
   useEffect(() => {
     const fetchGrounds = async () => {
       try {
-        const res = await apiClient.get<{ success: boolean; grounds: Ground[] }>("/api/player/grounds");
+        const res = await apiClient.get<{
+          success: boolean;
+          grounds: Ground[];
+        }>("/api/player/grounds");
         if (res.data.success) setGrounds(res.data.grounds);
       } catch (err: unknown) {
         console.error("Error fetching grounds:", err);
@@ -117,15 +122,18 @@ export default function BookGroundsPage() {
     setSelectedSlot(null);
 
     try {
-      const res = await apiClient.get<{ success: boolean; bookings: ExistingBooking[] }>(
-        `/api/player/grounds/${ground.id}/bookings`
-      );
+      const res = await apiClient.get<{
+        success: boolean;
+        bookings: ExistingBooking[];
+      }>(`/api/player/grounds/${ground.id}/bookings`);
       if (res.data?.success) {
         setExistingBookings(res.data.bookings || []);
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 404) {
-        console.warn("Bookings endpoint returned 404. Defaulting to empty bookings list.");
+        console.warn(
+          "Bookings endpoint returned 404. Defaulting to empty bookings list."
+        );
       } else {
         console.error("Failed to fetch existing bookings:", err);
       }
@@ -145,7 +153,9 @@ export default function BookGroundsPage() {
 
   const parseTimeToMinutes = (timeStr: string): number => {
     if (!timeStr) return 0;
-    const parts = timeStr.includes("T") ? timeStr.split("T")[1].substring(0, 5) : timeStr;
+    const parts = timeStr.includes("T")
+      ? timeStr.split("T")[1].substring(0, 5)
+      : timeStr;
     const [hours, minutes] = parts.split(":").map(Number);
     return hours * 60 + minutes;
   };
@@ -227,7 +237,8 @@ export default function BookGroundsPage() {
 
       if (res.ok && resData.success) {
         setMessage({
-          text: resData.message || "Reservation request submitted successfully!",
+          text:
+            resData.message || "Reservation request submitted successfully!",
           type: "success",
         });
 
@@ -280,7 +291,8 @@ export default function BookGroundsPage() {
           Book Futsal Arenas
         </h1>
         <p className="text-slate-500 text-sm mt-1 max-w-lg font-medium">
-          Browse verified grounds, inspect facilities, scan QR payment codes, and submit match reservations.
+          Browse verified grounds, inspect facilities, scan QR payment codes,
+          and submit match reservations.
         </p>
       </div>
 
@@ -301,7 +313,10 @@ export default function BookGroundsPage() {
             )}
             <span>{message.text}</span>
           </div>
-          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={() => setMessage(null)}
+            className="text-slate-400 hover:text-slate-600"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -335,7 +350,8 @@ export default function BookGroundsPage() {
               />
             </div>
             <p className="text-xs text-slate-500 font-semibold">
-              Open your eSewa, Khalti, or Mobile Banking app and point your camera at this QR code.
+              Open your eSewa, Khalti, or Mobile Banking app and point your
+              camera at this QR code. At least Pay 60% of total price
             </p>
           </div>
         </div>
@@ -354,18 +370,28 @@ export default function BookGroundsPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-extrabold text-base uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-emerald-600" /> Reserve {selectedGround.name}
+                  <CalendarDays className="w-4 h-4 text-emerald-600" /> Reserve{" "}
+                  {selectedGround.name}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Rate: <span className="font-bold text-emerald-600">Rs. {selectedGround.pricePerHour}/hr</span>
+                  Rate:{" "}
+                  <span className="font-bold text-emerald-600">
+                    Rs. {selectedGround.pricePerHour}/hr
+                  </span>
                 </p>
               </div>
-              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+              <button
+                onClick={closeModal}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={(e) => handleBookingSubmit(e, selectedGround.id)} className="space-y-5">
+            <form
+              onSubmit={(e) => handleBookingSubmit(e, selectedGround.id)}
+              className="space-y-5"
+            >
               {/* Date Selection */}
               <div>
                 <label className="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1.5">
@@ -392,7 +418,8 @@ export default function BookGroundsPage() {
                   </label>
                   {fetchingBookings && (
                     <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Syncing schedule...
+                      <Loader2 className="w-3 h-3 animate-spin" /> Syncing
+                      schedule...
                     </span>
                   )}
                 </div>
@@ -405,7 +432,8 @@ export default function BookGroundsPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {STATIC_TIME_SLOTS.map((slot) => {
                       const occupied = isSlotOccupied(slot);
-                      const isSelected = selectedSlot?.startTime === slot.startTime;
+                      const isSelected =
+                        selectedSlot?.startTime === slot.startTime;
 
                       return (
                         <button
@@ -422,8 +450,14 @@ export default function BookGroundsPage() {
                           }`}
                         >
                           <div className="flex items-center gap-1">
-                            {occupied && <Lock className="w-3 h-3 text-slate-400 shrink-0" />}
-                            <span className={occupied ? "line-through text-slate-400" : ""}>
+                            {occupied && (
+                              <Lock className="w-3 h-3 text-slate-400 shrink-0" />
+                            )}
+                            <span
+                              className={
+                                occupied ? "line-through text-slate-400" : ""
+                              }
+                            >
                               {slot.label}
                             </span>
                           </div>
@@ -436,7 +470,11 @@ export default function BookGroundsPage() {
                                 : "bg-emerald-50 text-emerald-600"
                             }`}
                           >
-                            {occupied ? "Booked" : isSelected ? "Selected" : "Available"}
+                            {occupied
+                              ? "Booked"
+                              : isSelected
+                              ? "Selected"
+                              : "Available"}
                           </span>
                         </button>
                       );
@@ -448,14 +486,17 @@ export default function BookGroundsPage() {
               {/* Step 1: Payment QR Code */}
               <div className="border-t border-slate-100 pt-4">
                 <label className="block text-[11px] uppercase tracking-wider font-extrabold text-slate-700 mb-2 flex items-center gap-1.5">
-                  <QrCode className="w-4 h-4 text-emerald-600" /> Step 1: Scan & Transfer Payment
+                  <QrCode className="w-4 h-4 text-emerald-600" /> Step 1: Scan &
+                  Transfer Payment
                 </label>
 
                 {selectedGround.paymentQrUrl ? (
                   <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center sm:text-left">
                     {/* Interactive Expandable QR Code Container */}
                     <div
-                      onClick={() => setExpandedQrUrl(selectedGround.paymentQrUrl || null)}
+                      onClick={() =>
+                        setExpandedQrUrl(selectedGround.paymentQrUrl || null)
+                      }
                       className="group relative w-32 h-32 bg-white border border-slate-200 rounded-xl p-2 shrink-0 flex items-center justify-center shadow-xs cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all overflow-hidden"
                     >
                       <img
@@ -465,30 +506,40 @@ export default function BookGroundsPage() {
                       />
                       <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-1 rounded-xl">
                         <Maximize2 className="w-4 h-4" />
-                        <span className="text-[9px] font-bold uppercase tracking-wider">Enlarge</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider">
+                          Enlarge
+                        </span>
                       </div>
                     </div>
 
-                    <div className="space-y-1 text-xs text-slate-600">
+                    <div className="space-y-1 text-xs text-slate-600 ">
                       <p className="font-bold text-slate-900 flex items-center justify-center sm:justify-start gap-1">
                         Scan via eSewa / Khalti / Mobile Banking
+                      At least pay 60% of Total Price to Secure Your Booking. 
                       </p>
                       <p className="text-[11px] text-slate-500">
-                        Scan this QR code using your digital wallet or banking app to complete the booking payment.
+                        Scan this QR code using your digital wallet or banking
+                        app to complete the booking payment.
                       </p>
                       <button
                         type="button"
-                        onClick={() => setExpandedQrUrl(selectedGround.paymentQrUrl || null)}
+                        onClick={() =>
+                          setExpandedQrUrl(selectedGround.paymentQrUrl || null)
+                        }
                         className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 uppercase tracking-wider cursor-pointer"
                       >
-                        <Maximize2 className="w-3 h-3" /> Click QR image to view full screen
+                        <Maximize2 className="w-3 h-3" /> Click QR image to view
+                        full screen
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-semibold flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
-                    <span>No QR code provided by owner. Contact ground manager for direct payment.</span>
+                    <span>
+                      No QR code provided by owner. Contact ground manager for
+                      direct payment.
+                    </span>
                   </div>
                 )}
               </div>
@@ -496,13 +547,18 @@ export default function BookGroundsPage() {
               {/* Step 2: Receipt Upload */}
               <div className="border-t border-slate-100 pt-4">
                 <label className="block text-[11px] uppercase tracking-wider font-extrabold text-slate-700 mb-2 flex items-center gap-1.5">
-                  <UploadCloud className="w-4 h-4 text-emerald-600" /> Step 2: Attach Payment Receipt
+                  <UploadCloud className="w-4 h-4 text-emerald-600" /> Step 2:
+                  Attach Payment Receipt
                 </label>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                   {receiptPreview ? (
                     <div className="relative w-24 h-24 rounded-xl border overflow-hidden bg-white shrink-0">
-                      <img src={receiptPreview} alt="Receipt Preview" className="w-full h-full object-cover" />
+                      <img
+                        src={receiptPreview}
+                        alt="Receipt Preview"
+                        className="w-full h-full object-cover"
+                      />
                       <button
                         type="button"
                         onClick={() => {
@@ -517,7 +573,9 @@ export default function BookGroundsPage() {
                   ) : (
                     <div className="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400 shrink-0">
                       <ImageIcon className="w-6 h-6 mb-1 text-slate-300" />
-                      <span className="text-[9px] font-bold uppercase">No Receipt</span>
+                      <span className="text-[9px] font-bold uppercase">
+                        No Receipt
+                      </span>
                     </div>
                   )}
 
@@ -537,7 +595,8 @@ export default function BookGroundsPage() {
                       {receiptFile ? "Change Receipt" : "Upload Screenshot"}
                     </label>
                     <p className="text-[10px] text-slate-400 font-medium">
-                      Upload your payment confirmation screenshot so the owner can verify your reservation.
+                      Upload your payment confirmation screenshot so the owner
+                      can verify your reservation.
                     </p>
                   </div>
                 </div>
@@ -554,7 +613,12 @@ export default function BookGroundsPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting || !selectedSlot || !selectedDate || fetchingBookings}
+                  disabled={
+                    submitting ||
+                    !selectedSlot ||
+                    !selectedDate ||
+                    fetchingBookings
+                  }
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
@@ -607,7 +671,8 @@ export default function BookGroundsPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <span className="block text-lg md:text-xl font-black text-emerald-600 flex items-center justify-end gap-1">
-                      <Coins className="w-4 h-4 opacity-70" /> Rs. {ground.pricePerHour}
+                      <Coins className="w-4 h-4 opacity-70" /> Rs.{" "}
+                      {ground.pricePerHour}
                     </span>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                       per hour
@@ -637,7 +702,8 @@ export default function BookGroundsPage() {
                   onClick={() => handleSelectGround(ground)}
                   className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <Clock className="w-3.5 h-3.5 text-emerald-400" /> Reserve Arena & Pay
+                  <Clock className="w-3.5 h-3.5 text-emerald-400" /> Reserve
+                  Arena & Pay
                 </button>
               </div>
             </div>

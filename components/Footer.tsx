@@ -25,13 +25,14 @@ export default function Footer() {
                 className="object-contain"
               /> */}
               <SathiLogo/>
-              <span
+              {/* <span
                 className="text-[#C8F55A] text-2xl tracking-tight font-bold"
                 style={DISPLAY}
               >
                 SATHI<span className="text-white/30">.app</span>
-              </span>
+              </span> */}
             </div>
+            
 
             <p className="text-sm text-white/60 max-w-sm leading-relaxed">
               Book courts, find players, and organize matches effortlessly. The
@@ -39,7 +40,7 @@ export default function Footer() {
             </p>
 
             {/* Newsletter Input */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="text-xs uppercase font-semibold text-white/50 tracking-wider">
                 Stay updated
               </label>
@@ -60,7 +61,7 @@ export default function Footer() {
                   Join
                 </button>
               </form>
-            </div>
+            </div> */}
           </div>
 
           {/* Navigation Links Column */}

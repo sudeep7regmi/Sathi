@@ -9,6 +9,7 @@ import {
   MessageSquare,
   LogOut,
   X,
+  TicketX,
 } from "lucide-react";
 
 interface PlayerSidebarProps {
@@ -23,6 +24,8 @@ export const navLinks = [
   { name: "Requests", path: "/player/requests", icon: Inbox },
   { name: "Book Futsal Grounds", path: "/player/grounds", icon: Layers },
   { name: "Messenger", path: "/player/chat", icon: MessageSquare },
+  { name: "Refunds", path: "/refunds", icon: TicketX },
+
 ];
 
 export default function PlayerSidebar({

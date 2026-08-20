@@ -29,7 +29,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <AdminSidebar
         isSidebarOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onLogout={handleLogout}
+        onLogout={handleLogout} 
       />
 
       {/* Primary Display Portal */}

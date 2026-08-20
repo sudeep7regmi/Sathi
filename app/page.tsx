@@ -122,7 +122,7 @@ export default async function Home() {
           />
           <line
             x1="720"
-            y1="0"
+            y1="0"  
             x2="720"
             y2="900"
             stroke="rgba(255,255,255,0.02)"
@@ -152,7 +152,7 @@ export default async function Home() {
             >
               BOOK.
               <br />
-              <span className="text-[#C8F55A]">PLAY.</span>
+              <span className="text-[#b9e16a]">PLAY.</span>
               <br />
               CONQUER.
             </h1>

@@ -4,7 +4,7 @@ import {
   Trash2,
   MapPin,
   Sparkles,
-  QrCode,
+  QrCode, 
   Layers,
   Coins,
 } from "lucide-react";

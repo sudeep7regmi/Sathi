@@ -107,7 +107,7 @@ export default function LoginForm() {
             type="submit"
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase active:scale-[0.99] transition-all cursor-pointer shadow-sm"
           >
-            Sign In
+            sign in
           </button>
 
           <div className="text-center mt-2">
