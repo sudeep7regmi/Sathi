@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import SathiLogo from "@/components/ui/SathiLogo";
 
 export const dynamic = "force-dynamic";
+
 // The app's core features remain static as they are marketing copy
 const features = [
   {
@@ -41,6 +42,7 @@ const DISPLAY = {
   fontFamily: "'Barlow Condensed', sans-serif",
   fontWeight: 900,
 };
+
 interface FeaturedGround {
   id: string;
   name: string;
@@ -50,19 +52,32 @@ interface FeaturedGround {
     isVerified: boolean;
   };
 }
-export default async function Home() {
-  // DYNAMIC DATA FETCHING: Pull real stats and grounds directly from the database
-  const [totalVenues, totalPlayers, featuredGrounds] = await Promise.all([
-    prisma.ground.count(),
-    prisma.user.count({ where: { role: "PLAYER" } }),
-    prisma.ground.findMany({
-      take: 3, // Fetch the 3 most recently added arenas
-      orderBy: { createdAt: "desc" },
-      include: { owner: true },
-    }),
-  ]);
 
-  // Dynamic stats array using real database numbers
+export default async function Home() {
+  let totalVenues = 0;
+  let totalPlayers = 0;
+  let featuredGrounds: FeaturedGround[] = [];
+
+  // Wrap Prisma calls in try/catch to catch runtime connection errors
+  try {
+    const [venuesCount, playersCount, grounds] = await Promise.all([
+      prisma.ground.count(),
+      prisma.user.count({ where: { role: "PLAYER" } }),
+      prisma.ground.findMany({
+        take: 3, // Fetch the 3 most recently added arenas
+        orderBy: { createdAt: "desc" },
+        include: { owner: true },
+      }),
+    ]);
+
+    totalVenues = venuesCount;
+    totalPlayers = playersCount;
+    featuredGrounds = grounds as unknown as FeaturedGround[];
+  } catch (error) {
+    console.error("[HOME_PAGE_PRISMA_ERROR]: Failed to load database content.", error);
+  }
+
+  // Dynamic stats array using real database numbers or clean fallback defaults
   const dynamicStats = [
     [`${totalVenues > 0 ? totalVenues : "10"}+`, "Verified Venues"],
     [`${totalPlayers > 0 ? totalPlayers : "50"}+`, "Active Players"],
@@ -236,131 +251,131 @@ export default async function Home() {
 
       {/* DYNAMIC VENUE PREVIEW */}
       <section
-  id="venues"
-  className="bg-black py-28 px-6 md:px-12 border-y border-white/20"
->
-  <div className="max-w-7xl mx-auto">
-    <div className="max-w-3xl mb-16">
-      <p className="text-white text-xl font-black tracking-[0.2em] uppercase mb-4 flex items-center gap-3">
-        <span className="w-8 h-1 bg-white" /> Verified Operators
-      </p>
-      <h2
-        className="text-white leading-none text-5xl md:text-7xl tracking-tight font-black"
-        style={DISPLAY}
+        id="venues"
+        className="bg-black py-28 px-6 md:px-12 border-y border-white/20"
       >
-        PREVIEW TOP COURTS
-      </h2>
-      <p className="text-white text-xl md:text-2xl mt-4 font-bold">
-        Unlock access to real-time calendars, peak hour parameters, and
-        secure bookings upon profile confirmation.
-      </p>
-    </div>
-
-    {featuredGrounds.length === 0 ? (
-      <div className="bg-black border-2 border-white rounded-2xl p-10 text-center">
-        <p className="text-white text-2xl font-bold">
-          New arenas are joining the platform right now. Check back soon!
-        </p>
-      </div>
-    ) : (
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {featuredGrounds.map((ground: FeaturedGround) => (
-          <div
-            key={ground.id}
-            className="bg-black border-2 border-white rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-white/20 group"
-          >
-            <div className="h-52 bg-white relative flex items-center justify-center overflow-hidden border-b-2 border-white">
-              <svg
-                className="absolute inset-0 w-full h-full opacity-20"
-                viewBox="0 0 320 144"
-                aria-hidden
-              >
-                <rect
-                  x="10"
-                  y="10"
-                  width="300"
-                  height="124"
-                  fill="none"
-                  stroke="black"
-                  strokeWidth="2"
-                />
-                <line
-                  x1="160"
-                  y1="10"
-                  x2="160"
-                  y2="134"
-                  stroke="black"
-                  strokeWidth="2"
-                />
-                <circle
-                  cx="160"
-                  cy="72"
-                  r="28"
-                  fill="none"
-                  stroke="black"
-                  strokeWidth="2"
-                />
-              </svg>
-              <span className="text-6xl group-hover:scale-125 transition-transform duration-300">
-                ⚽
-              </span>
-              {ground.owner.isVerified && (
-                <span className="absolute top-4 right-4 text-sm font-black px-3 py-1.5 rounded-full bg-black text-white uppercase tracking-widest flex items-center gap-1.5 border border-white">
-                  <ShieldCheck className="w-4 h-4 text-white" />{" "}
-                  Verified Partner
-                </span>
-              )}
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="flex justify-between items-start gap-2">
-                <h3
-                  className="text-white text-2xl md:text-3xl font-black tracking-wide line-clamp-1"
-                  style={DISPLAY}
-                >
-                  {ground.name}
-                </h3>
-                <div className="flex items-center gap-1 text-white font-black text-xl shrink-0">
-                  <Star className="w-5 h-5 fill-white text-white" /> 5.0
-                </div>
-              </div>
-
-              <p className="text-white text-xl font-bold flex items-center gap-2 line-clamp-1">
-                <MapPin className="w-6 h-6 text-white shrink-0" />{" "}
-                {ground.address}
-              </p>
-
-              <div className="flex items-center justify-between border-t-2 border-white/20 pt-5">
-                <div className="flex flex-col">
-                  <span className="text-white text-xl font-black uppercase tracking-wider">
-                    Starting From
-                  </span>
-                  <span
-                    className="text-white text-3xl font-black"
-                    style={DISPLAY}
-                  >
-                    Rs. {ground.pricePerHour}
-                    <span className="text-xl text-white font-bold">
-                      {" "}
-                      /hr
-                    </span>
-                  </span>
-                </div>
-                <Link
-                  href="/register"
-                  className="bg-white hover:bg-black text-black hover:text-white border-2 border-white text-xl px-5 py-3 rounded-xl font-black uppercase tracking-wider transition-all"
-                  style={DISPLAY}
-                >
-                  Check Slots
-                </Link>
-              </div>
-            </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-3xl mb-16">
+            <p className="text-white text-xl font-black tracking-[0.2em] uppercase mb-4 flex items-center gap-3">
+              <span className="w-8 h-1 bg-white" /> Verified Operators
+            </p>
+            <h2
+              className="text-white leading-none text-5xl md:text-7xl tracking-tight font-black"
+              style={DISPLAY}
+            >
+              PREVIEW TOP COURTS
+            </h2>
+            <p className="text-white text-xl md:text-2xl mt-4 font-bold">
+              Unlock access to real-time calendars, peak hour parameters, and
+              secure bookings upon profile confirmation.
+            </p>
           </div>
-        ))}
-      </div>
-    )}
-  </div>
-</section>
+
+          {featuredGrounds.length === 0 ? (
+            <div className="bg-black border-2 border-white rounded-2xl p-10 text-center">
+              <p className="text-white text-2xl font-bold">
+                New arenas are joining the platform right now. Check back soon!
+              </p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredGrounds.map((ground: FeaturedGround) => (
+                <div
+                  key={ground.id}
+                  className="bg-black border-2 border-white rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-white/20 group"
+                >
+                  <div className="h-52 bg-white relative flex items-center justify-center overflow-hidden border-b-2 border-white">
+                    <svg
+                      className="absolute inset-0 w-full h-full opacity-20"
+                      viewBox="0 0 320 144"
+                      aria-hidden
+                    >
+                      <rect
+                        x="10"
+                        y="10"
+                        width="300"
+                        height="124"
+                        fill="none"
+                        stroke="black"
+                        strokeWidth="2"
+                      />
+                      <line
+                        x1="160"
+                        y1="10"
+                        x2="160"
+                        y2="134"
+                        stroke="black"
+                        strokeWidth="2"
+                      />
+                      <circle
+                        cx="160"
+                        cy="72"
+                        r="28"
+                        fill="none"
+                        stroke="black"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                    <span className="text-6xl group-hover:scale-125 transition-transform duration-300">
+                      ⚽
+                    </span>
+                    {ground.owner?.isVerified && (
+                      <span className="absolute top-4 right-4 text-sm font-black px-3 py-1.5 rounded-full bg-black text-white uppercase tracking-widest flex items-center gap-1.5 border border-white">
+                        <ShieldCheck className="w-4 h-4 text-white" />{" "}
+                        Verified Partner
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-6 space-y-4">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3
+                        className="text-white text-2xl md:text-3xl font-black tracking-wide line-clamp-1"
+                        style={DISPLAY}
+                      >
+                        {ground.name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-white font-black text-xl shrink-0">
+                        <Star className="w-5 h-5 fill-white text-white" /> 5.0
+                      </div>
+                    </div>
+
+                    <p className="text-white text-xl font-bold flex items-center gap-2 line-clamp-1">
+                      <MapPin className="w-6 h-6 text-white shrink-0" />{" "}
+                      {ground.address}
+                    </p>
+
+                    <div className="flex items-center justify-between border-t-2 border-white/20 pt-5">
+                      <div className="flex flex-col">
+                        <span className="text-white text-xl font-black uppercase tracking-wider">
+                          Starting From
+                        </span>
+                        <span
+                          className="text-white text-3xl font-black"
+                          style={DISPLAY}
+                        >
+                          Rs. {ground.pricePerHour.toString()}
+                          <span className="text-xl text-white font-bold">
+                            {" "}
+                            /hr
+                          </span>
+                        </span>
+                      </div>
+                      <Link
+                        href="/register"
+                        className="bg-white hover:bg-black text-black hover:text-white border-2 border-white text-xl px-5 py-3 rounded-xl font-black uppercase tracking-wider transition-all"
+                        style={DISPLAY}
+                      >
+                        Check Slots
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* FINAL CALL TO ACTION — high-contrast emerald theme */}
       <section className="py-32 px-6 text-center relative overflow-hidden bg-gradient-to-b from-[#0A1F1A] to-[#061612]">
