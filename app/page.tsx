@@ -40,7 +40,15 @@ const DISPLAY = {
   fontFamily: "'Barlow Condensed', sans-serif",
   fontWeight: 900,
 };
-
+interface FeaturedGround {
+  id: string;
+  name: string;
+  address: string;
+  pricePerHour: number | string | bigint;
+  owner: {
+    isVerified: boolean;
+  };
+}
 export default async function Home() {
   // DYNAMIC DATA FETCHING: Pull real stats and grounds directly from the database
   const [totalVenues, totalPlayers, featuredGrounds] = await Promise.all([
@@ -255,7 +263,7 @@ export default async function Home() {
       </div>
     ) : (
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {featuredGrounds.map((ground) => (
+        {featuredGrounds.map((ground: FeaturedGround) => (
           <div
             key={ground.id}
             className="bg-black border-2 border-white rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-white/20 group"
