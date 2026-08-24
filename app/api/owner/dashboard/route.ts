@@ -41,9 +41,15 @@ export async function GET(request: Request) {
     let totalRevenue = 0;
     let totalCompletedBookings = 0;
 
-    ownerData.grounds.forEach(ground => {
+    ownerData.grounds.forEach((ground: {
+      bookings: {
+        totalCost: number;
+        status: string;
+      }[];
+    }) => {
       totalCompletedBookings += ground.bookings.length;
-      ground.bookings.forEach(booking => {
+    
+      ground.bookings.forEach((booking) => {
         totalRevenue += booking.totalCost;
       });
     });
