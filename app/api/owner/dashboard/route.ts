@@ -1,31 +1,41 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || "sathi_core_jwt_access_string_secret_2026_local"
+  process.env.JWT_SECRET ||
+    "sathi_core_jwt_access_string_secret_2026_local"
 );
 
-type OwnerData = Prisma.OwnerProfileGetPayload<{
-  include: {
-    grounds: {
-      include: {
-        bookings: {
-          where: {
-            status: "COMPLETED";
-          };
-        };
-      };
-    };
-  };
-}>;
+type BookingData = {
+  totalCost: number | string | bigint;
+  status: string;
+};
+
+type GroundData = {
+  id: string;
+  name: string;
+  pricePerHour: number | string | bigint;
+  bookings: BookingData[];
+};
+
+type OwnerData = {
+  futsalName: string;
+  futsalLocation: string;
+  isVerified: boolean;
+  grounds: GroundData[];
+};
 
 export async function GET(request: Request) {
   try {
-    // 1. Extract token from cookie
+    // --------------------------------------------------
+    // 1. Get authentication token
+    // --------------------------------------------------
+
     const cookieHeader = request.headers.get("cookie") || "";
+
     const tokenMatch = cookieHeader.match(/sathi_access=([^;]+)/);
+
     const token = tokenMatch ? tokenMatch[1] : null;
 
     if (!token) {
@@ -34,11 +44,16 @@ export async function GET(request: Request) {
           success: false,
           message: "Unauthorized access",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
+    // --------------------------------------------------
     // 2. Verify JWT
+    // --------------------------------------------------
+
     const { payload } = await jwtVerify(token, SECRET_KEY);
 
     const userId = payload.userId as string;
@@ -49,15 +64,21 @@ export async function GET(request: Request) {
           success: false,
           message: "Invalid authentication token",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
-    // 3. Fetch owner with grounds and completed bookings
-    const ownerData: OwnerData | null = await prisma.ownerProfile.findUnique({
+    // --------------------------------------------------
+    // 3. Get owner data
+    // --------------------------------------------------
+
+    const ownerData = (await prisma.ownerProfile.findUnique({
       where: {
         userId,
       },
+
       include: {
         grounds: {
           include: {
@@ -69,34 +90,56 @@ export async function GET(request: Request) {
           },
         },
       },
-    });
+    })) as OwnerData | null;
 
-    // 4. Owner not found
+    // --------------------------------------------------
+    // 4. Check owner profile
+    // --------------------------------------------------
+
     if (!ownerData) {
       return NextResponse.json(
         {
           success: false,
           message: "Owner profile not found",
         },
-        { status: 404 }
+        {
+          status: 404,
+        }
       );
     }
 
-    // 5. Calculate metrics
+    // --------------------------------------------------
+    // 5. Calculate dashboard metrics
+    // --------------------------------------------------
+
     const totalGrounds = ownerData.grounds.length;
 
     let totalRevenue = 0;
+
     let totalCompletedBookings = 0;
 
-    ownerData.grounds.forEach((ground) => {
+    ownerData.grounds.forEach((ground: GroundData) => {
       totalCompletedBookings += ground.bookings.length;
 
-      ground.bookings.forEach((booking) => {
+      ground.bookings.forEach((booking: BookingData) => {
         totalRevenue += Number(booking.totalCost);
       });
     });
 
-    // 6. Return response
+    // --------------------------------------------------
+    // 6. Prepare ground information
+    // --------------------------------------------------
+
+    const grounds = ownerData.grounds.map((ground: GroundData) => ({
+      id: ground.id,
+      name: ground.name,
+      pricePerHour: Number(ground.pricePerHour),
+    }));
+
+    // --------------------------------------------------
+    // 7. Return dashboard data
+    // --------------------------------------------------
+
     return NextResponse.json(
       {
         success: true,
@@ -113,13 +156,11 @@ export async function GET(request: Request) {
           totalCompletedBookings,
         },
 
-        grounds: ownerData.grounds.map((ground) => ({
-          id: ground.id,
-          name: ground.name,
-          pricePerHour: Number(ground.pricePerHour),
-        })),
+        grounds,
       },
-      { status: 200 }
+      {
+        status: 200,
+      }
     );
   } catch (error: unknown) {
     console.error("[OWNER_API_ERROR]", error);
@@ -129,7 +170,9 @@ export async function GET(request: Request) {
         success: false,
         message: "Server error loading owner data",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
