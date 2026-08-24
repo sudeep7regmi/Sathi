@@ -2,9 +2,8 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  turbopack:{
-root: path.resolve(__dirname)
-
+  turbopack: {
+    root: path.resolve(__dirname),
   },
   images: {
     remotePatterns: [
@@ -14,7 +13,11 @@ root: path.resolve(__dirname)
       },
     ],
   },
-  reactCompiler: true,
+  experimental: {},
+  // Prevents static generation failures from serving empty pages
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
