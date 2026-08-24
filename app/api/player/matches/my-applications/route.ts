@@ -6,7 +6,7 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'sathi_core_jwt_access_string_secret_2026_local'
 );
 
-// Explicit interface for the application object from Prisma query
+// Explicit interface matching the exact query structure
 interface ApplicationItem {
   id: string;
   createdAt: Date | string;
@@ -18,17 +18,17 @@ interface ApplicationItem {
     title: string;
     date: Date | string;
     location: string;
-    startTime: string;
-    endTime: string;
+    startTime: Date | string;
+    endTime: Date | string;
     matchType: string;
     status: string;
-    organizer: {
+    organizer?: {
       id: string;
       email: string;
       playerProfile?: {
         fullName: string;
       } | null;
-    };
+    } | null;
   };
 }
 
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Query joinRequests using playerProfile.id
-    const myApplications = await prisma.joinRequest.findMany({
+    const myApplications = (await prisma.joinRequest.findMany({
       where: {
         playerId: playerProfile.id,
       },
@@ -84,15 +84,15 @@ export async function GET(request: Request) {
         },
       },
       orderBy: { createdAt: 'desc' },
-    });
+    })) as unknown as ApplicationItem[];
 
-    // 3. Format response to flatten organizer name (Explicitly type 'app')
-    const formattedApplications = myApplications.map((app) => ({
+    // 3. Format response to flatten organizer name
+    const formattedApplications = myApplications.map((app: ApplicationItem) => ({
       ...app,
       match: {
         ...app.match,
-        startTime: app.match.startTime.toString(),
-        endTime: app.match.endTime.toString(),
+        startTime: app.match.startTime ? app.match.startTime.toString() : '',
+        endTime: app.match.endTime ? app.match.endTime.toString() : '',
         organizer: {
           fullName:
             app.match.organizer?.playerProfile?.fullName ||
