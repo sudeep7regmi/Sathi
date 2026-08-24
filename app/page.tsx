@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import Footer from "@/components/Footer";
 import SathiLogo from "@/components/ui/SathiLogo";
 
+export const dynamic = "force-dynamic";
 // The app's core features remain static as they are marketing copy
 const features = [
   {
