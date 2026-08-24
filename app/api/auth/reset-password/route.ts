@@ -31,18 +31,14 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Password must be at least 8 characters long.",
+          message: "Password must be at least 8 characters long.",
         },
         { status: 400 }
       );
     }
 
     // Hash the token received from the URL.
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     // Find user with matching token that has not expired.
     const user = await prisma.user.findFirst({
@@ -59,18 +55,14 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "This password reset link is invalid or has expired.",
+          message: "This password reset link is invalid or has expired.",
         },
         { status: 400 }
       );
     }
 
     // Hash the new password.
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password and invalidate reset token.
     await prisma.user.update({
@@ -89,8 +81,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message:
-        "Password successfully updated.",
+      message: "Password successfully updated.",
     });
   } catch (error) {
     console.error("Reset password error:", error);
@@ -98,8 +89,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Something went wrong. Please try again later.",
+        message: "Something went wrong. Please try again later.",
       },
       { status: 500 }
     );

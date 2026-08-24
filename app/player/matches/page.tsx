@@ -246,7 +246,7 @@ export default function MatchHubPage() {
 
   return (
     <div
-      className="min-h-screen pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8"
+      className="min-h-screen pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-black placeholder:text-black [&_*::placeholder]:text-black [&_input::placeholder]:text-black"
       style={{ backgroundColor: "var(--bcolor)" }}
     >
       {/* Dynamic Header */}
@@ -259,25 +259,27 @@ export default function MatchHubPage() {
       {/* Alert Messages */}
       {message && (
         <div
-          className={`p-4 rounded-2xl font-bold text-xs uppercase tracking-wider border flex items-center justify-between gap-3 shadow-xs ${
+          className={`p-5 rounded-2xl font-black text-base uppercase tracking-wider border flex items-center justify-between gap-3 shadow-sm ${
             message.type === "success"
-              ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-              : "bg-red-50 text-red-900 border-red-200"
+              ? "bg-emerald-50 text-black border-black"
+              : "bg-red-50 text-black border-black"
           }`}
         >
           <div className="flex items-center gap-3">
             {message.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-6 h-6 text-black shrink-0" />
             ) : (
-              <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+              <AlertTriangle className="w-6 h-6 text-black shrink-0" />
             )}
-            <span>{message.text}</span>
+            <span className="text-black text-base md:text-lg font-black">
+              {message.text}
+            </span>
           </div>
           <button
             onClick={() => setMessage(null)}
-            className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+            className="text-black hover:scale-110 p-1 cursor-pointer transition-transform"
           >
-            <X className="w-4 h-4" />
+            <X className="w-6 h-6 text-black" />
           </button>
         </div>
       )}
@@ -304,19 +306,18 @@ export default function MatchHubPage() {
       <div>
         {filteredMatches.length === 0 ? (
           <div
-            className="rounded-3xl p-12 border text-center flex flex-col items-center justify-center space-y-3"
+            className="rounded-3xl p-12 border-2 border-black text-center flex flex-col items-center justify-center space-y-4"
             style={{
               backgroundColor: "var(--ccolor)",
-              borderColor: "var(--border-color)",
             }}
           >
-            <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
-              <ShieldAlert className="w-6 h-6" />
+            <div className="w-16 h-16 bg-black border border-black rounded-2xl flex items-center justify-center text-white">
+              <ShieldAlert className="w-8 h-8 text-white" />
             </div>
-            <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wide">
+            <h3 className="font-black text-black text-xl md:text-2xl uppercase tracking-wide">
               No Matches Found
             </h3>
-            <p className="text-slate-500 text-xs font-medium max-w-sm">
+            <p className="text-black text-base md:text-lg font-bold max-w-lg leading-relaxed">
               We couldn&apos;t find any match records matching your criteria. Try
               adjusting your search query or host a new match.
             </p>

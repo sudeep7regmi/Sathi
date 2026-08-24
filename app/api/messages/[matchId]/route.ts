@@ -1,13 +1,13 @@
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 export async function GET(
-  request: Request,
-  { params }: { params: { matchId: string } }
+  request: NextRequest,
+  { params }: { params:Promise <{ matchId: string }> }
 ) {
   try {
-    const matchId = params.matchId;
+    const {matchId} = await params;
 
     // 1. Find the chat associated with this match
     const chat = await prisma.chat.findUnique({

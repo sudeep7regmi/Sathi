@@ -34,7 +34,7 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
   }, []);
 
   // Close mobile sidebar on route change
-
+ 
   const handleLogout = async () => {
     try {
       await apiClient.post("/api/logout");
@@ -47,8 +47,8 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
   return (
     <SocketProvider>
       <div
-        className="min-h-screen flex antialiased"
-        style={{ backgroundColor: "var(--bcolor)", color: "var(--tcolor)" }}
+        className="min-h-screen flex antialiased text-black"
+        style={{ backgroundColor: "var(--bcolor)" }}
       >
         {/* Navigation Sidebar */}
         <PlayerSidebar
@@ -58,7 +58,7 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
         />
 
         {/* Display Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative ">
+        <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden relative">
           {/* Header Navbar */}
           <PlayerNavbar
             userName={userName}

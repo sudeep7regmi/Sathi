@@ -173,7 +173,7 @@ export default function PlayerDashboardHome() {
         } else {
           console.error("Dashboard fetch error:", err);
         }
-      } flex: {
+      } finally {
         setLoading(false);
       }
     };
@@ -224,6 +224,7 @@ export default function PlayerDashboardHome() {
     const formattedHours = h % 12 || 12;
     return `${formattedHours.toString().padStart(2, "0")}:${minutes} ${ampm}`;
   };
+
   if (loading)
     return (
       <div
@@ -240,15 +241,14 @@ export default function PlayerDashboardHome() {
 
   return (
     <div
-      className="space-y-8 pb-12 min-h-screen"
-      style={{ backgroundColor: "var(--bcolor)", color: "var(--tcolor)" }}
+      className="space-y-8 pb-12 min-h-screen text-black"
+      style={{ backgroundColor: "var(--bcolor)" }}
     >
       {/* Hero Banner with Player Profile Image */}
       <div
-        className="relative overflow-hidden border rounded-3xl p-6 md:p-10 shadow-sm flex flex-col md:flex-row items-center gap-6"
+        className="relative overflow-hidden border border-slate-200 rounded-3xl p-6 md:p-10 shadow-sm flex flex-col md:flex-row items-center gap-6"
         style={{
           backgroundColor: "var(--ccolor)",
-          borderColor: "var(--border-color)",
         }}
       >
         {/* Profile Avatar */}
@@ -263,16 +263,16 @@ export default function PlayerDashboardHome() {
 
         {/* Profile Welcome Info */}
         <div className="relative z-10 max-w-2xl text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-slate-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black mb-2">
             Welcome back, {profile.fullName.split(" ")[0]}!
           </h1>
-          <p className="text-slate-600 text-sm md:text-base leading-relaxed font-medium">
+          <p className="text-black text-base font-normal leading-relaxed">
             You are currently ranked as an{" "}
-            <span className="text-emerald-600 font-bold uppercase">
+            <span className="text-emerald-700 font-bold uppercase">
               {profile.skillLevel}
             </span>{" "}
             player in{" "}
-            <span className="text-slate-900 font-semibold">
+            <span className="text-black font-semibold">
               {profile.location}
             </span>
             . Ready to hit the pitch?
@@ -303,19 +303,18 @@ export default function PlayerDashboardHome() {
           return (
             <div
               key={i}
-              className="border p-6 rounded-2xl shadow-sm transition-all duration-200 hover:shadow-md group"
+              className="border border-slate-200 p-6 rounded-2xl shadow-sm transition-all duration-200 hover:shadow-md group"
               style={{
                 backgroundColor: "var(--ccolor)",
-                borderColor: "var(--border-color)",
               }}
             >
-              <div className="w-10 h-10 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <IconComponent className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <IconComponent className="w-5 h-5 text-emerald-700" />
               </div>
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-bold text-black uppercase tracking-wider">
                 {stat.label}
               </p>
-              <p className="text-2xl font-black mt-1 text-slate-900 group-hover:text-emerald-600 transition-colors">
+              <p className="text-2xl font-black mt-1 text-black group-hover:text-emerald-700 transition-colors">
                 {stat.value}
               </p>
             </div>
@@ -329,85 +328,84 @@ export default function PlayerDashboardHome() {
           <div className="space-y-4">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-xl font-bold uppercase tracking-wide text-slate-900 flex items-center">
+              <h2 className="text-xl font-black uppercase tracking-wide text-black flex items-center">
                 <span className="w-1.5 h-6 bg-emerald-500 rounded-full mr-3"></span>
                 Upcoming Matches & Active Reservations
               </h2>
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider self-start sm:self-auto">
+              <span className="text-xs font-bold text-black uppercase tracking-wider self-start sm:self-auto">
                 {filteredBookings.length}{" "}
                 {filteredBookings.length === 1 ? "Match" : "Matches"}
               </span>
             </div>
 
             {/* Filter Tabs Bar */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/80">
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
               <button
                 onClick={() => setStatusFilter("ALL")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                   statusFilter === "ALL"
-                    ? "bg-white text-slate-900 shadow-2xs border border-slate-200"
-                    : "text-slate-500 hover:text-slate-800"
+                    ? "bg-white text-black shadow-xs border border-slate-200"
+                    : "text-black hover:bg-slate-200/60"
                 }`}
               >
-                All <span className="text-[10px] opacity-75">({counts.ALL})</span>
+                All <span className="text-[10px] font-bold">({counts.ALL})</span>
               </button>
 
               <button
                 onClick={() => setStatusFilter("APPROVED")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                   statusFilter === "APPROVED"
-                    ? "bg-emerald-600 text-white shadow-2xs"
-                    : "text-emerald-700 hover:bg-emerald-50"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "text-black hover:bg-emerald-50"
                 }`}
               >
                 Confirmed{" "}
-                <span className="text-[10px] opacity-80">({counts.APPROVED})</span>
+                <span className="text-[10px] font-bold">({counts.APPROVED})</span>
               </button>
 
               <button
                 onClick={() => setStatusFilter("PENDING")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                   statusFilter === "PENDING"
-                    ? "bg-amber-500 text-white shadow-2xs"
-                    : "text-amber-700 hover:bg-amber-50"
+                    ? "bg-amber-500 text-white shadow-xs"
+                    : "text-black hover:bg-amber-50"
                 }`}
               >
                 Pending{" "}
-                <span className="text-[10px] opacity-80">({counts.PENDING})</span>
+                <span className="text-[10px] font-bold">({counts.PENDING})</span>
               </button>
 
               <button
                 onClick={() => setStatusFilter("REJECTED")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                   statusFilter === "REJECTED"
-                    ? "bg-red-600 text-white shadow-2xs"
-                    : "text-red-600 hover:bg-red-50"
+                    ? "bg-red-600 text-white shadow-xs"
+                    : "text-black hover:bg-red-50"
                 }`}
               >
                 Declined{" "}
                 {counts.REJECTED > 0 && (
                   <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
                 )}
-                <span className="text-[10px] opacity-80">({counts.REJECTED})</span>
+                <span className="text-[10px] font-bold">({counts.REJECTED})</span>
               </button>
             </div>
 
             {/* Empty State */}
             {filteredBookings.length === 0 ? (
               <div
-                className="rounded-2xl p-10 border text-center flex flex-col items-center justify-center shadow-sm"
+                className="rounded-2xl p-10 border border-slate-200 text-center flex flex-col items-center justify-center shadow-sm"
                 style={{
                   backgroundColor: "var(--ccolor)",
-                  borderColor: "var(--border-color)",
                 }}
               >
-                <div className="w-14 h-14 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center mb-3 text-slate-400">
+                <div className="w-14 h-14 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center mb-3 text-slate-500">
                   <Calendar className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-slate-800 uppercase tracking-wide text-sm">
+                <h3 className="font-bold text-black uppercase tracking-wide text-sm">
                   No matches found under &quot;{statusFilter.toLowerCase()}&quot;
                 </h3>
-                <p className="text-slate-500 text-xs mt-1 max-w-sm">
+                <p className="text-black text-xs mt-1 max-w-sm font-normal">
                   Change your status filter tab or reserve a court from the
                   grounds directory.
                 </p>
@@ -428,20 +426,16 @@ export default function PlayerDashboardHome() {
                   return (
                     <div
                       key={booking.id}
-                      className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 shadow-2xs hover:shadow-xs group ${
+                      className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 shadow-xs hover:shadow-md group ${
                         booking.status === "REJECTED"
-                          ? "bg-red-50/20 border-red-200/60"
-                          : ""
+                          ? "bg-red-50/20 border-red-200"
+                          : "border-slate-200"
                       }`}
                       style={{
                         backgroundColor:
                           booking.status === "REJECTED"
                             ? undefined
                             : "var(--ccolor)",
-                        borderColor:
-                          booking.status === "REJECTED"
-                            ? undefined
-                            : "var(--border-color)",
                       }}
                     >
                       <div className="flex items-start space-x-3.5">
@@ -450,17 +444,17 @@ export default function PlayerDashboardHome() {
                           className={`w-12 h-12 border rounded-xl flex flex-col items-center justify-center shrink-0 ${
                             booking.status === "REJECTED"
                               ? "bg-red-50 border-red-200 text-red-700"
-                              : "bg-emerald-50 border-emerald-100 text-emerald-700"
+                              : "bg-emerald-50 border-emerald-200 text-emerald-800"
                           }`}
                         >
-                          <span className="text-[9px] font-extrabold uppercase tracking-widest">
+                          <span className="text-[9px] font-black uppercase tracking-widest">
                             {typeof formattedDate === "string"
                               ? "DATE"
                               : formattedDate.toLocaleString("default", {
                                   month: "short",
                                 })}
                           </span>
-                          <span className="text-lg font-black leading-none text-slate-900 mt-0.5">
+                          <span className="text-lg font-black leading-none text-black mt-0.5">
                             {typeof formattedDate === "string"
                               ? "—"
                               : formattedDate.getDate()}
@@ -470,26 +464,26 @@ export default function PlayerDashboardHome() {
                         {/* Booking Details */}
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors text-sm uppercase tracking-tight">
+                            <h3 className="font-bold text-black group-hover:text-emerald-700 transition-colors text-sm uppercase tracking-tight">
                               {booking.ground?.name ||
                                 "Futsal Match Reservation"}
                             </h3>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-medium">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black font-normal">
                             {booking.ground?.address && (
                               <span className="flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                 {booking.ground.address}
                               </span>
                             )}
-                            <span className="flex items-center gap-1 text-slate-700 font-semibold">
-                              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="flex items-center gap-1 text-black font-medium">
+                              <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                               {startTimeStr}{" "}
                               {endTimeStr ? `- ${endTimeStr}` : ""}
                             </span>
-                            <span className="flex items-center gap-1 text-emerald-600 font-extrabold">
-                              <Coins className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span className="flex items-center gap-1 text-emerald-800 font-bold">
+                              <Coins className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                               Rs. {booking.totalCost}
                             </span>
                           </div>
@@ -499,13 +493,13 @@ export default function PlayerDashboardHome() {
                       {/* Right Action & Status Badge */}
                       <div className="self-start sm:self-auto shrink-0 flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider border ${
                             booking.status === "PENDING"
-                              ? "bg-amber-50 border-amber-200 text-amber-700"
+                              ? "bg-amber-50 border-amber-200 text-amber-800"
                               : booking.status === "APPROVED"
-                              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                               : booking.status === "COMPLETED"
-                              ? "bg-blue-50 border-blue-200 text-blue-700"
+                              ? "bg-blue-50 border-blue-200 text-blue-800"
                               : "bg-red-100 border-red-300 text-red-800"
                           }`}
                         >
@@ -541,7 +535,7 @@ export default function PlayerDashboardHome() {
                           <button
                             onClick={() => handleDeleteBooking(booking.id)}
                             title="Dismiss from list"
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -555,16 +549,16 @@ export default function PlayerDashboardHome() {
                 {filteredBookings.length > 3 && (
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-extrabold uppercase tracking-wider text-slate-600 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider text-black transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     {isExpanded ? (
                       <>
-                        <ChevronUp className="w-4 h-4 text-slate-500" /> Show
+                        <ChevronUp className="w-4 h-4 text-slate-600" /> Show
                         Fewer Matches
                       </>
                     ) : (
                       <>
-                        <ChevronDown className="w-4 h-4 text-slate-500" /> Show
+                        <ChevronDown className="w-4 h-4 text-slate-600" /> Show
                         All ({filteredBookings.length - 3} more)
                       </>
                     )}
@@ -576,18 +570,17 @@ export default function PlayerDashboardHome() {
 
           {/* Dynamic Tactical Training Drills */}
           <div
-            className="p-6 rounded-2xl border shadow-sm space-y-4"
+            className="p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
             style={{
               backgroundColor: "var(--ccolor)",
-              borderColor: "var(--border-color)",
             }}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
+              <h3 className="font-bold text-black text-sm uppercase tracking-wider flex items-center gap-2">
                 <Dumbbell className="w-4 h-4 text-emerald-600" /> Recommended
                 Drills ({profile.preferredPosition})
               </h3>
-              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+              <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                 {tactics.primaryFocus}
               </span>
             </div>
@@ -596,22 +589,22 @@ export default function PlayerDashboardHome() {
               {tactics.drills.map((drill, idx) => (
                 <div
                   key={idx}
-                  className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl space-y-1"
+                  className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-1"
                 >
-                  <p className="text-xs font-bold text-slate-900 leading-snug">
+                  <p className="text-xs font-bold text-black leading-snug">
                     {drill.name}
                   </p>
-                  <p className="text-[11px] font-semibold text-emerald-600">
+                  <p className="text-[11px] font-semibold text-emerald-700">
                     {drill.sets}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="bg-emerald-50/60 border border-emerald-100/80 p-3.5 rounded-xl flex items-start gap-3">
-              <Compass className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-700 font-medium leading-relaxed">
-                <strong className="text-slate-900 uppercase text-[10px] block tracking-wider mb-0.5">
+            <div className="bg-emerald-50/70 border border-emerald-200/80 p-3.5 rounded-xl flex items-start gap-3">
+              <Compass className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+              <p className="text-xs text-black font-normal leading-relaxed">
+                <strong className="text-black uppercase text-[10px] block tracking-wider mb-0.5 font-bold">
                   Tactical Positioning Note
                 </strong>
                 {tactics.tacticalAdvice}
@@ -623,13 +616,12 @@ export default function PlayerDashboardHome() {
         {/* Right Sidebar Column: Tactical Pitch Diagram */}
         <div className="space-y-6">
           <div
-            className="p-6 rounded-2xl border shadow-sm space-y-4"
+            className="p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
             style={{
               backgroundColor: "var(--ccolor)",
-              borderColor: "var(--border-color)",
             }}
           >
-            <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
+            <h3 className="font-bold text-black text-sm uppercase tracking-wider flex items-center gap-2">
               <Target className="w-4 h-4 text-emerald-600" /> Tactical Pitch
               Zone
             </h3>
@@ -647,7 +639,7 @@ export default function PlayerDashboardHome() {
               >
                 <div className="relative flex items-center justify-center">
                   <span className="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-emerald-400 opacity-75"></span>
-                  <div className="relative w-7 h-7 bg-white text-emerald-800 rounded-full border-2 border-emerald-600 flex items-center justify-center font-black text-[10px] shadow-md">
+                  <div className="relative w-7 h-7 bg-white text-emerald-900 rounded-full border-2 border-emerald-600 flex items-center justify-center font-black text-[10px] shadow-md">
                     {profile.preferredPosition.substring(0, 2).toUpperCase()}
                   </div>
                 </div>
@@ -655,10 +647,10 @@ export default function PlayerDashboardHome() {
             </div>
 
             <div className="text-center pt-1">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-black uppercase tracking-wider block">
                 Assigned Role
               </span>
-              <span className="text-sm font-extrabold text-slate-900">
+              <span className="text-sm font-black text-black">
                 {tactics.roleTitle}
               </span>
             </div>
