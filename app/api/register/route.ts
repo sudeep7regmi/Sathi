@@ -6,7 +6,9 @@ import {
   registerOwnerSchema,
 } from "@/lib/validation/auth.schema";
 import { uploadImage } from "@/app/services/cloudinary.service";
-import { SkillLevel } from "@prisma/client";
+
+// Defined locally to eliminate dependency on @prisma/client exports
+type SkillLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "PRO" ;
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
       const preferredPosition = formData.get("preferredPosition") as string;
       const skillLevel = formData.get("skillLevel") as string;
       const bio = (formData.get("bio") as string) || "";
-      
+
       // Accept file under "profileImage", "image", or "avatar"
       const profileImage =
         formData.get("profileImage") ||
@@ -101,7 +103,6 @@ export async function POST(request: Request) {
             "sathi_futsal/profile-images"
           );
 
-          // Safely capture URL whether service returns url or secure_url
           imageUrl =
             uploadResult?.url ||
             (uploadResult as unknown as { secureUrl?: string })?.secureUrl ||
