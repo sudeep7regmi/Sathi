@@ -1,23 +1,31 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET ||
     "sathi_core_jwt_access_string_secret_2026_local"
 );
 
-// Prisma payload type including relations
-type OwnerWithGroundsAndBookings = Prisma.OwnerProfileGetPayload<{
-  include: {
-    grounds: {
-      include: {
-        bookings: true;
-      };
-    };
-  };
-}>;
+// Defined explicitly to eliminate imports from @prisma/client
+interface Booking {
+  totalCost: number | string | bigint;
+  status: string;
+}
+
+interface Ground {
+  id: string;
+  name: string;
+  pricePerHour: number | string | bigint;
+  bookings: Booking[];
+}
+
+interface OwnerData {
+  futsalName: string;
+  futsalLocation: string;
+  isVerified: boolean;
+  grounds: Ground[];
+}
 
 export async function GET(request: Request) {
   try {
@@ -30,10 +38,7 @@ export async function GET(request: Request) {
 
     if (!token) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Unauthorized access",
-        },
+        { success: false, message: "Unauthorized access" },
         { status: 401 }
       );
     }
@@ -46,10 +51,7 @@ export async function GET(request: Request) {
 
     if (!userId) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid authentication token",
-        },
+        { success: false, message: "Invalid authentication token" },
         { status: 401 }
       );
     }
@@ -57,31 +59,25 @@ export async function GET(request: Request) {
     // --------------------------------------------------
     // 3. Get owner data
     // --------------------------------------------------
-    const ownerData: OwnerWithGroundsAndBookings | null =
-      await prisma.ownerProfile.findUnique({
-        where: { userId },
-        include: {
-          grounds: {
-            include: {
-              bookings: {
-                where: {
-                  status: "COMPLETED",
-                },
-              },
+    const ownerData = (await prisma.ownerProfile.findUnique({
+      where: { userId },
+      include: {
+        grounds: {
+          include: {
+            bookings: {
+              where: { status: "COMPLETED" },
             },
           },
         },
-      });
+      },
+    })) as OwnerData | null;
 
     // --------------------------------------------------
     // 4. Check owner profile
     // --------------------------------------------------
     if (!ownerData) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Owner profile not found",
-        },
+        { success: false, message: "Owner profile not found" },
         { status: 404 }
       );
     }
@@ -93,10 +89,11 @@ export async function GET(request: Request) {
     let totalRevenue = 0;
     let totalCompletedBookings = 0;
 
-    ownerData.grounds.forEach((ground) => {
+    // Type parameters explicitly here to avoid TS noImplicitAny errors
+    ownerData.grounds.forEach((ground: Ground) => {
       totalCompletedBookings += ground.bookings.length;
 
-      ground.bookings.forEach((booking) => {
+      ground.bookings.forEach((booking: Booking) => {
         totalRevenue += Number(booking.totalCost);
       });
     });
@@ -104,7 +101,7 @@ export async function GET(request: Request) {
     // --------------------------------------------------
     // 6. Prepare ground information
     // --------------------------------------------------
-    const grounds = ownerData.grounds.map((ground) => ({
+    const grounds = ownerData.grounds.map((ground: Ground) => ({
       id: ground.id,
       name: ground.name,
       pricePerHour: Number(ground.pricePerHour),
@@ -134,10 +131,7 @@ export async function GET(request: Request) {
     console.error("[OWNER_API_ERROR]", error);
 
     return NextResponse.json(
-      {
-        success: false,
-        message: "Server error loading owner data",
-      },
+      { success: false, message: "Server error loading owner data" },
       { status: 500 }
     );
   }
