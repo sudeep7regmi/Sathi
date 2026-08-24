@@ -6,6 +6,32 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'sathi_core_jwt_access_string_secret_2026_local'
 );
 
+// Explicit interface for the application object from Prisma query
+interface ApplicationItem {
+  id: string;
+  createdAt: Date | string;
+  playerId: string;
+  matchId: string;
+  status: string;
+  match: {
+    id: string;
+    title: string;
+    date: Date | string;
+    location: string;
+    startTime: string;
+    endTime: string;
+    matchType: string;
+    status: string;
+    organizer: {
+      id: string;
+      email: string;
+      playerProfile?: {
+        fullName: string;
+      } | null;
+    };
+  };
+}
+
 export async function GET(request: Request) {
   try {
     const cookieHeader = request.headers.get('cookie') || '';
@@ -60,11 +86,13 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    // 3. Format response to flatten organizer name
+    // 3. Format response to flatten organizer name (Explicitly type 'app')
     const formattedApplications = myApplications.map((app) => ({
       ...app,
       match: {
         ...app.match,
+        startTime: app.match.startTime.toString(),
+        endTime: app.match.endTime.toString(),
         organizer: {
           fullName:
             app.match.organizer?.playerProfile?.fullName ||
