@@ -63,7 +63,7 @@ export function OwnerHeader({
 
   return (
     <header
-      className="backdrop-blur-md h-20 border-b flex items-center px-6  top-0 justify-between z-30 shadow-2xs transition-all"
+      className="sticky top-0 backdrop-blur-md h-20 border-b flex items-center px-5 md:px-6 justify-between z-30 shadow-sm transition-all"
       style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)', borderColor: 'var(--border-color)' }}
     >
       {/* Sidebar Toggle & Title */}

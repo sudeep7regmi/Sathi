@@ -76,7 +76,7 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full relative z-10">
+        <main className="flex-1 p-5 md:p-8 max-w-[1440px] mx-auto w-full relative z-10">
           {children}
         </main>
       </div>

@@ -48,14 +48,14 @@ export default function PlayerSidebar({
 
       {/* SIDEBAR PANEL */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-full md:w-72 border-r flex flex-col transition-transform duration-300 ease-in-out shadow-sm
+        className={`fixed inset-y-0 left-0 z-50 w-[min(88vw,19rem)] border-r flex flex-col transition-transform duration-300 ease-in-out shadow-2xl md:shadow-sm
         ${
           isSidebarOpen
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0"
         } md:sticky top-0 h-screen`}
         style={{
-          backgroundColor: "var(--ccolor)",
+          backgroundColor: "rgba(255,255,255,.94)",
           borderColor: "var(--border-color)",
         }}
       >
@@ -66,7 +66,7 @@ export default function PlayerSidebar({
         >
           <div className="flex items-center space-x-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-md"
+              className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-emerald-600/20 ring-4 ring-emerald-100"
               style={{ backgroundColor: "var(--pcolor)" }}
             >
               S
@@ -86,19 +86,23 @@ export default function PlayerSidebar({
         </div>
 
         {/* Navigation Link Stack */}
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
+          <p className="app-kicker px-4 mb-3">Player workspace</p>
           {navLinks.map((link) => {
             const isActive = pathname === link.path;
             const IconComponent = link.icon;
             return (
               <button
                 key={link.path}
-                onClick={() => router.push(link.path)}
+                onClick={() => {
+                  onClose();
+                  router.push(link.path);
+                }}
                 className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 text-left cursor-pointer group
                   ${
                     isActive
-                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/10"
-                      : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
+                      ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-600/20"
+                      : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900"
                   }`}
               >
                 <IconComponent

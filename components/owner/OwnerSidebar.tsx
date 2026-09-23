@@ -43,10 +43,10 @@ export function OwnerSidebar({
 
       {/* Sidebar Panel */}
       <aside
-        className={`w-64 h-screen p-5 fixed md:sticky top-0 flex flex-col justify-between transition-transform duration-300 border-r z-50 shadow-sm ${
+        className={`w-[min(88vw,17rem)] h-screen p-4 fixed md:sticky top-0 flex flex-col justify-between transition-transform duration-300 border-r z-50 shadow-2xl md:shadow-sm ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
-        style={{ backgroundColor: 'var(--ccolor)', borderColor: 'var(--border-color)' }}
+        style={{ backgroundColor: 'rgba(255,255,255,.94)', borderColor: 'var(--border-color)' }}
       >
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Brand Header */}
@@ -55,7 +55,7 @@ export function OwnerSidebar({
               className="flex items-center space-x-3 cursor-pointer"
               onClick={() => onNavigate('/owner')}
             >
-              <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-md shadow-emerald-600/20 ring-2 ring-emerald-600/10">
+              <div className="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-emerald-600/20 ring-4 ring-emerald-100">
                 S
               </div>
               <div className="flex flex-col">
@@ -79,6 +79,7 @@ export function OwnerSidebar({
 
           {/* Navigation Links */}
           <nav className="space-y-1.5 pt-6 overflow-y-auto flex-1 pr-1">
+            <p className="app-kicker px-4 mb-3">Venue workspace</p>
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
@@ -88,8 +89,8 @@ export function OwnerSidebar({
                   onClick={() => onNavigate(item.path)}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 group relative cursor-pointer ${
                     active
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                      : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-600/20'
+                      : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-900'
                   }`}
                 >
                   <Icon

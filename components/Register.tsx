@@ -12,11 +12,11 @@ const DISPLAY = {
 };
 
 const INPUT_CLASS =
-  "w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all";
+  "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all";
 const SELECT_CLASS =
-  "w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all appearance-none cursor-pointer";
+  "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer";
 const LABEL_CLASS =
-  "block text-gray-600 text-xs uppercase font-bold tracking-wider mb-2";
+  "block text-slate-700 text-xs uppercase font-bold tracking-wider mb-2";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -133,9 +133,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="bg-[#F0FDF4] min-h-screen flex flex-col items-center justify-center p-6 selection:bg-[#C8F55A] selection:text-black relative overflow-hidden py-16">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-60 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-green-50 rounded-full blur-3xl opacity-80 pointer-events-none" />
+    <div className="min-h-screen flex flex-col items-center justify-center p-5 sm:p-6 selection:bg-[#C8F55A] selection:text-black relative overflow-hidden py-12">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
 
       <Link
         href="/"
@@ -145,7 +145,7 @@ export default function RegisterPage() {
         SATHI<span className="text-gray-400">.app</span>
       </Link>
 
-      <div className="relative z-10 bg-white border border-gray-200 rounded-2xl p-8 w-full max-w-xl shadow-xl">
+      <div       className="relative z-10 bg-white/90 border border-slate-200 rounded-3xl p-6 sm:p-9 w-full max-w-xl shadow-2xl shadow-slate-900/10 backdrop-blur">
         <div className="text-center mb-8">
           <h1
             className="text-4xl text-gray-900 uppercase tracking-wide mb-2"
@@ -159,7 +159,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Tab Selection */}
-        <div className="flex rounded-xl bg-gray-100 p-1.5 mb-8 border border-gray-200">
+        <div className="flex rounded-2xl bg-slate-100 p-1.5 mb-8 border border-slate-200">
           <button
             type="button"
             onClick={() => {
@@ -168,8 +168,8 @@ export default function RegisterPage() {
             }}
             className={`flex-1 py-3 text-xs uppercase tracking-wider font-bold rounded-lg transition-all ${
               activeTab === "PLAYER"
-                ? "bg-[#C8F55A] text-black shadow-md"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-500 hover:text-slate-800"
             }`}
             style={DISPLAY}
           >

@@ -49,7 +49,7 @@ export default function AdminNavbar({
   }, []);
 
   return (
-    <header className="bg-[#12161A]/80 backdrop-blur-md sticky top-0 z-30 h-20 border-b border-white/5 flex items-center justify-between px-4 md:px-8 transition-colors">
+    <header className="bg-[#101a17]/90 backdrop-blur-md sticky top-0 z-30 h-20 border-b border-white/10 flex items-center justify-between px-4 md:px-8 transition-colors">
       {/* Left Section: Mobile Menu Trigger & Route Title */}
       <div className="flex items-center space-x-4">
         <button

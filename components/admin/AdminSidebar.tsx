@@ -48,7 +48,7 @@ export default function AdminSidebar({
 
       {/* Sidebar Navigation Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#12161A]/95 backdrop-blur-xl border-r border-white/10 flex flex-col overflow-hidden transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-[min(88vw,19rem)] bg-[#101a17]/95 backdrop-blur-xl border-r border-white/10 flex flex-col overflow-hidden transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         } md:relative md:z-auto shadow-2xl md:shadow-none`}
       >
@@ -101,7 +101,7 @@ export default function AdminSidebar({
                   onClose();
                   router.push(link.path);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 text-left cursor-pointer group relative overflow-hidden ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all duration-200 text-left cursor-pointer group relative overflow-hidden ${
                   isActive
                     ? "bg-[#C8F55A] text-black shadow-lg shadow-[#C8F55A]/10 font-extrabold"
                     : "text-white/60 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/5"

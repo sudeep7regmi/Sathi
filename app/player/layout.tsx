@@ -67,7 +67,7 @@ export default function PlayerLayout({ children }: PlayerLayoutProps) {
           />
 
           {/* Core Page Content Container */}
-          <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto relative z-10">
+          <main className="flex-1 p-4 md:p-8 max-w-[1440px] w-full mx-auto relative z-10">
             {children}
           </main>
         </div>
