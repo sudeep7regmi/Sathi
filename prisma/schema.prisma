@@ -203,6 +203,10 @@ paymentVerifiedAt      DateTime?
   status      BookingStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([groundId, date, startTime, endTime])
+  @@index([userId, createdAt])
+  @@index([status])
 }
 
 model Tournament {

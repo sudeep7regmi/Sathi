@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useSocket } from '@/components/providers/SocketProvider';
+import { apiClient } from '@/lib/axios';
 import { 
   Radio, 
   SendHorizontal, 
@@ -24,10 +25,27 @@ export default function GlobalChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   
-  // Hardcoded placeholders matching configuration architecture
-  const myUserId = 'user_123'; 
-  const myName = 'Manish Bhujel';
+  const [myUserId, setMyUserId] = useState<string | null>(null);
+  const [myName, setMyName] = useState('Player');
   const currentMatchRoom = 'global_lobby';
+
+  useEffect(() => {
+    let active = true;
+    apiClient
+      .get('/api/player/dashboard')
+      .then(({ data }) => {
+        if (active && data.success && data.profile?.userId) {
+          setMyUserId(data.profile.userId);
+          setMyName(data.profile.fullName || 'Player');
+        }
+      })
+      .catch(() => {
+        if (active) setMyUserId(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -50,7 +68,7 @@ export default function GlobalChatPage() {
 
   const sendMessage = (e: FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim() || !socket) return;
+    if (!inputMessage.trim() || !socket || !myUserId) return;
 
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -161,7 +179,7 @@ export default function GlobalChatPage() {
         
         <button 
           type="submit"
-          disabled={!inputMessage.trim()}
+          disabled={!inputMessage.trim() || !myUserId}
           className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 text-white px-5 py-3 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0 disabled:cursor-not-allowed"
         >
           <span>Send</span>

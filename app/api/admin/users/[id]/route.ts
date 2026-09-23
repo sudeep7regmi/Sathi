@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; // Adjust import based on your prisma setup location
+import { authenticateRequest, authErrorResponse, requireRole } from '@/lib/auth';
 
 // GET single user and player profile
 export async function GET(
@@ -7,6 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    requireRole(await authenticateRequest(req), 'ADMIN');
     const { id } = await params;
 
     const user = await prisma.user.findUnique({
@@ -32,10 +34,7 @@ export async function GET(
     return NextResponse.json({ success: true, user });
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch user' },
-      { status: 500 }
-    );
+    return authErrorResponse(error);
   }
 }
 
@@ -45,6 +44,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    requireRole(await authenticateRequest(req), 'ADMIN');
     const { id } = await params;
     const body = await req.json();
 
@@ -64,7 +64,7 @@ export async function PATCH(
     } = body;
 
     // Update User core fields
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id },
       data: {
         ...(role && { role }),
@@ -98,17 +98,11 @@ export async function PATCH(
           },
         },
       },
-      include: {
-        playerProfile: true,
-      },
     });
 
-    return NextResponse.json({ success: true, user: updatedUser });
+    return NextResponse.json({ success: true, message: 'User updated successfully' });
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to update user stats' },
-      { status: 500 }
-    );
+    return authErrorResponse(error);
   }
 }

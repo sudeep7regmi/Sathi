@@ -1,21 +1,12 @@
 import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 import { uploadImage, deleteImage } from '@/app/services/cloudinary.service';
-
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'sathi_core_jwt_access_string_secret_2026_local'
-);
+import { authenticateRequest, authErrorResponse, requireRole } from '@/lib/auth';
 
 // Helper function to handle authentication and profile verification
 async function authenticateOwner(request: Request) {
-  const cookieHeader = request.headers.get('cookie') || '';
-  const tokenMatch = cookieHeader.match(/sathi_access=([^;]+)/);
-  if (!tokenMatch) return null;
-
   try {
-    const { payload } = await jwtVerify(tokenMatch[1], SECRET_KEY);
-    const userId = payload.userId as string;
+    const { userId } = requireRole(await authenticateRequest(request), 'OWNER');
 
     const ownerProfile = await prisma.ownerProfile.findUnique({ where: { userId } });
     return ownerProfile;
@@ -30,6 +21,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    requireRole(await authenticateRequest(request), 'OWNER');
     const { id: groundId } = await params;
     const ownerProfile = await authenticateOwner(request);
 
@@ -52,7 +44,7 @@ export async function GET(
     return NextResponse.json({ success: true, ground }, { status: 200 });
   } catch (error) {
     console.error('Error fetching ground:', error);
-    return NextResponse.json({ success: false, message: 'Failed to fetch ground' }, { status: 500 });
+    return authErrorResponse(error);
   }
 }
 
@@ -62,6 +54,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    requireRole(await authenticateRequest(request), 'OWNER');
     const { id: groundId } = await params;
     const ownerProfile = await authenticateOwner(request);
 
@@ -123,7 +116,7 @@ export async function PUT(
     return NextResponse.json({ success: true, ground: updatedGround }, { status: 200 });
   } catch (error) {
     console.error('Error updating ground:', error);
-    return NextResponse.json({ success: false, message: 'Failed to update ground' }, { status: 500 });
+    return authErrorResponse(error);
   }
 }
 
@@ -133,6 +126,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    requireRole(await authenticateRequest(request), 'OWNER');
     const { id: groundId } = await params;
     const ownerProfile = await authenticateOwner(request);
 
@@ -173,9 +167,6 @@ export async function DELETE(
     );
   } catch (error: unknown) {
     console.error('Error deleting ground:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to delete ground' },
-      { status: 500 }
-    );
+    return authErrorResponse(error);
   }
 }

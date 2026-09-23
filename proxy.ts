@@ -3,8 +3,23 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 // Define the exact paths that do not require authentication
-const publicRoutes = ["/", "/login", "/register"];
-const publicApiRoutes = ["/api/login", "/api/register", "/api/logout"];
+const publicRoutes = [
+  "/",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/faq",
+  "/privacy",
+  "/terms",
+];
+const publicApiRoutes = [
+  "/api/login",
+  "/api/register",
+  "/api/logout",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -39,21 +54,35 @@ export async function proxy(request: NextRequest) {
 
   try {
     // 5. Verify the token using `jose` for Edge compatibility
-    const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || "sathi_core_jwt_access_string_secret_2026_local"
-    );
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+    const secret = new TextEncoder().encode(jwtSecret);
     const { payload } = await jwtVerify(accessToken, secret);
 
     const userRole = payload.role as string;
 
     // 6. Enforce Role-Based Access Control (RBAC) Routing Rules
-    if (pathname.startsWith("/player") && userRole !== "PLAYER") {
+    if (
+      (pathname.startsWith("/player") ||
+        pathname.startsWith("/api/player")) &&
+      userRole !== "PLAYER"
+    ) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    if (pathname.startsWith("/owner") && userRole !== "OWNER") {
+    if (
+      (pathname.startsWith("/owner") ||
+        pathname.startsWith("/api/owner")) &&
+      userRole !== "OWNER"
+    ) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    if (pathname.startsWith("/admin") && userRole !== "ADMIN") {
+    if (
+      (pathname.startsWith("/admin") ||
+        pathname.startsWith("/api/admin")) &&
+      userRole !== "ADMIN"
+    ) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
@@ -78,6 +107,6 @@ export async function proxy(request: NextRequest) {
 // Target all routes except standard static files
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|forgot-password||reset-password|faq|privacy|terms|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

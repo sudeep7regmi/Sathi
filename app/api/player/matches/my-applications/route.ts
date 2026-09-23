@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
-
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'sathi_core_jwt_access_string_secret_2026_local'
-);
+import { authenticateRequest, authErrorResponse, requireRole } from '@/lib/auth';
 
 // Explicit interface matching the exact query structure
 interface ApplicationItem {
@@ -34,18 +30,11 @@ interface ApplicationItem {
 
 export async function GET(request: Request) {
   try {
-    const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/sathi_access=([^;]+)/);
-    if (!tokenMatch) {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { payload } = await jwtVerify(tokenMatch[1], SECRET_KEY);
-    const userId = payload.userId as string;
+    const auth = requireRole(await authenticateRequest(request), 'PLAYER');
 
     // 1. Get the player's PlayerProfile ID from their User ID
     const playerProfile = await prisma.playerProfile.findUnique({
-      where: { userId },
+      where: { userId: auth.userId },
       select: { id: true },
     });
 
@@ -108,9 +97,6 @@ export async function GET(request: Request) {
     );
   } catch (error: unknown) {
     console.error('Error fetching player applications:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch applications.' },
-      { status: 500 }
-    );
+    return authErrorResponse(error);
   }
 }

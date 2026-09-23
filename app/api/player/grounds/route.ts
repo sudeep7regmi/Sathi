@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 import { uploadImage } from '@/app/services/cloudinary.service';
-
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'sathi_core_jwt_access_string_secret_2026_local'
-);
+import { authenticateRequest, authErrorResponse, requireRole } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -24,6 +20,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = requireRole(await authenticateRequest(request), 'PLAYER');
     // Check content-type header
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
@@ -32,16 +29,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    // Authentication Check
-    const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/sathi_access=([^;]+)/);
-    if (!tokenMatch) {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { payload } = await jwtVerify(tokenMatch[1], SECRET_KEY);
-    const userId = payload.userId as string;
 
     // Parse FormData
     const formData = await request.formData();
@@ -62,66 +49,68 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Payment receipt screenshot is required' }, { status: 400 });
     }
 
-    const ground = await prisma.ground.findUnique({ where: { id: groundId } });
-    if (!ground) {
-      return NextResponse.json({ success: false, message: 'Ground not found' }, { status: 404 });
-    }
-
     const start = new Date(`${date}T${startTime}`);
     const end = new Date(`${date}T${endTime}`);
     const durationMinutes = (end.getTime() - start.getTime()) / 60000;
 
-    if (isNaN(start.getTime()) || isNaN(end.getTime()) || durationMinutes <= 0) {
+    if (
+      isNaN(start.getTime()) ||
+      isNaN(end.getTime()) ||
+      durationMinutes <= 0 ||
+      durationMinutes > 24 * 60
+    ) {
       return NextResponse.json({ success: false, message: 'End time must be strictly after start time' }, { status: 400 });
     }
 
-    // --- Exclusive Slot Overlap Check ---
     const bookingDate = new Date(date);
-    const existingOverlap = await prisma.booking.findFirst({
-      where: {
-        groundId,
-        status: { not: 'REJECTED' },
-        date: bookingDate,
-        OR: [
-          {
-            startTime: { lt: end },
-            endTime: { gt: start },
-          },
-        ],
-      },
-    });
-
-    if (existingOverlap) {
-      return NextResponse.json(
-        { success: false, message: 'This time slot is already booked or pending verification.' },
-        { status: 409 }
-      );
+    if (isNaN(bookingDate.getTime())) {
+      return NextResponse.json({ success: false, message: 'Invalid booking date' }, { status: 400 });
     }
 
-    const totalCost = (durationMinutes / 60) * ground.pricePerHour;
-
-    // Upload receipt image to Cloudinary
     const uploadResult = await uploadImage(receiptFile, 'sathi_futsal/receipts');
+    const booking = await prisma.$transaction(async (tx) => {
+      const ground = await tx.ground.findUnique({ where: { id: groundId } });
+      if (!ground) throw new Error('GROUND_NOT_FOUND');
 
-    const booking = await prisma.booking.create({
-      data: {
-        userId,
-        groundId,
-        date: bookingDate,
-        startTime: start,
-        endTime: end,
-        duration: durationMinutes,
-        totalCost,
-        paymentReceiptUrl: uploadResult.url,
-        paymentReceiptPublicId: uploadResult.publicId,
-        paymentSubmittedAt: new Date(),
-        status: 'PENDING',
-      },
+      await tx.$queryRaw`SELECT id FROM Ground WHERE id = ${groundId} FOR UPDATE`;
+      const existingOverlap = await tx.booking.findFirst({
+        where: {
+          groundId,
+          status: { notIn: ['REJECTED', 'CANCELLED'] },
+          date: bookingDate,
+          startTime: { lt: end },
+          endTime: { gt: start },
+        },
+        select: { id: true },
+      });
+      if (existingOverlap) throw new Error('BOOKING_CONFLICT');
+
+      return tx.booking.create({
+        data: {
+          userId: auth.userId,
+          groundId,
+          date: bookingDate,
+          startTime: start,
+          endTime: end,
+          duration: durationMinutes,
+          totalCost: (durationMinutes / 60) * ground.pricePerHour,
+          paymentReceiptUrl: uploadResult.url,
+          paymentReceiptPublicId: uploadResult.publicId,
+          paymentSubmittedAt: new Date(),
+          status: 'PENDING',
+        },
+      });
     });
 
     return NextResponse.json({ success: true, booking, message: 'Booking request submitted successfully!' }, { status: 201 });
   } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'GROUND_NOT_FOUND') {
+      return NextResponse.json({ success: false, message: 'Ground not found' }, { status: 404 });
+    }
+    if (error instanceof Error && error.message === 'BOOKING_CONFLICT') {
+      return NextResponse.json({ success: false, message: 'This time slot is already booked or pending verification.' }, { status: 409 });
+    }
     console.error('[BOOKING_ERROR]', error);
-    return NextResponse.json({ success: false, message: 'Failed to create booking' }, { status: 500 });
+    return authErrorResponse(error);
   }
 }
